@@ -33,4 +33,6 @@ public interface Street {
      * @param stop Nově přidávaná zastávka.
      */
     public void addStop(Stop stop);
+
+    public void streetMapAccess();
 }
