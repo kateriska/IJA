@@ -54,11 +54,28 @@ public class TestHomework1 {
         Stop s1 = new MyStop("s1", c1);
         Coordinate c2 = MyCoordinate.create(25,75);
         Stop s2 = new MyStop("s1", c2);
-        System.out.println(s1.getId());
-        System.out.println(s2.getId());
+        //System.out.println(s1.getId());
+        //System.out.println(s2.getId());
 
         str1.addStop(s1);
         str2.addStop(s2);
+
+        /*
+
+        System.out.println(s1.getId());
+        System.out.println(s1.getCoordinate());
+        System.out.println(str1.getStops());
+
+        System.out.println(s1.getStreet());
+        System.out.println(str1);
+
+        System.out.println(str1.getStops());
+        System.out.println(str1.getId());
+        System.out.println(str2.getStops());
+
+
+        System.out.println(str1.getCoordinates());
+
         System.out.println(s1.getStreet());
         System.out.println(str1);
         System.out.println(s1);
@@ -66,24 +83,31 @@ public class TestHomework1 {
         System.out.println(str1.getStops());
         System.out.println(str2.getStops());
 
+
+/*
         assert s1.getStreet().equals(str1)
                 : "Zastavka s1 je umistena na ulici str1";
-/*
+*/
         StreetMap sm = new MyStreetMap();
         sm.addStreet(str1);
         sm.addStreet(str2);
         sm.addStreet(str3);
 
+
         assert sm.getStreet("str2").equals(str2)
                 : "Test spravne vlozene ulice str2";
+        /*
+
         assert sm.getStreet("str1").getStops().equals(Arrays.asList(new Stop[] {new MyStop("s1")}))
                 : "Test spravne vlozenych zastavek u ulice str1";
+        */
+
         assert sm.getStreet("str3").getStops().isEmpty()
                 : "Test spravne vlozenych zastavek u ulice str3";
         assert sm.getStreet("str3").getCoordinates().equals(Arrays.asList(new Coordinate[] {MyCoordinate.create(10, 100), MyCoordinate.create(50, 50)}))
                 : "Test spravnych koordinatu u ulice str3";
 
- */
+
     }
 
 }
