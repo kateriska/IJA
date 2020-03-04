@@ -32,12 +32,12 @@ public class MyCoordinate implements Coordinate
 
     @java.lang.Override
     public int getX() {
-        return x;
+        return this.x;
     }
 
     @java.lang.Override
     public int getY() {
-        return y;
+        return this.y;
     }
 
 
