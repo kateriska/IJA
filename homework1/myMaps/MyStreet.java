@@ -60,6 +60,7 @@ public class MyStreet implements Street {
 
     @Override
     public void addStop(Stop stop) {
+        stop.setStreet(this);
         if (stop != null) {
             all_stops_list.add(stop);
         }
