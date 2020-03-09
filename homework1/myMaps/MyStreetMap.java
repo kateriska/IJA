@@ -1,6 +1,5 @@
 package myMaps;
 
-import maps.Stop;
 import maps.Street;
 import maps.StreetMap;
 
@@ -8,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyStreetMap implements StreetMap {
-    List<Street> streets_map = new ArrayList<Street>();
+    private List<Street> streets_map = new ArrayList<Street>();
     public MyStreetMap()
     {
 

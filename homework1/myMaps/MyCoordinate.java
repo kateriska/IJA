@@ -6,8 +6,8 @@ import maps.Coordinate;
 public class MyCoordinate implements Coordinate
 {
     //private Coordinate[][] coordinates;
-    int x;
-    int y;
+    private int x;
+    private int y;
 
     public MyCoordinate(int x, int y)
     {

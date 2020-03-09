@@ -5,9 +5,9 @@ import maps.Street;
 
 public class MyStop implements Stop
 {
-    String id;
-    Coordinate street_coordinates;
-    Street street_name;
+    private String id;
+    private Coordinate street_coordinates;
+    private Street street_name;
 
     public MyStop(String id, Coordinate street_coordinates)
     {
