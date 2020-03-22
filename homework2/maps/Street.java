@@ -12,6 +12,7 @@ public class Street {
     private Coordinate coordinate2;
     private Coordinate coordinate_end;
     private List<Coordinate> all_coordinates_list = new ArrayList<Coordinate>();
+    private List<Stop> all_stops_list = new ArrayList<Stop>();
 
     public Street(String street_id, Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate_end)
     {
@@ -45,10 +46,6 @@ public class Street {
             return null;
         }
 
-
-       // System.out.println(length1);
-       // System.out.println(length2);
-       // System.out.println(length3);
         Street new_street = new Street(first, coordinate1, coordinate2, coordinate_end);
         return new_street;
     }
@@ -69,6 +66,7 @@ public class Street {
     public java.util.List<Coordinate> getCoordinates()
     {
         all_coordinates_list.add(coordinate1);
+        all_coordinates_list.add(coordinate2);
         all_coordinates_list.add(coordinate_end);
         return this.all_coordinates_list;
     }
@@ -80,7 +78,7 @@ public class Street {
 
     public java.util.List<Stop> getStops()
     {
-        return null;
+        return this.all_stops_list;
     }
 
     public boolean follows(Street s) {
@@ -92,10 +90,10 @@ public class Street {
         Coordinate this_last_point = this_street_coordinates.get(this_street_coordinates.size() - 1);
         Coordinate s_first_point = s_street_coordinates.get(0);
 
-        System.out.println(this_last_point.getX());
-        System.out.println(s_first_point.getX());
-        System.out.println(this_last_point.getY());
-        System.out.println(s_first_point.getY());
+        //System.out.println(this_last_point.getX());
+        //System.out.println(s_first_point.getX());
+        //System.out.println(this_last_point.getY());
+        //System.out.println(s_first_point.getY());
 
 
         if (this_last_point.getX() == s_first_point.getX() && this_last_point.getY() == s_first_point.getY())
@@ -110,7 +108,32 @@ public class Street {
 
     }
 
-    public boolean addStop(Stop stop1) {
+    public boolean addStop(Stop stop) {
+        java.util.List<Coordinate> this_street_coordinates = this.getCoordinates();
+        Coordinate stop_coordinates = stop.getCoordinate();
+        int diff_end_points = Math.abs(this_street_coordinates.get(0).getX() - this_street_coordinates.get(this_street_coordinates.size()-1).getX());
+
+        //System.out.println(this_street_coordinates.get(1).getX());
+        //System.out.println(stop_coordinates.getX());
+
+
+        if (this_street_coordinates.get(0).getY() == this_street_coordinates.get(this_street_coordinates.size()-1).getY() && stop_coordinates.getX() < diff_end_points)
+        {
+            stop.setStreet(this);
+
+            all_stops_list.add(stop);
+
+            return true;
+        }
+        else if (stop_coordinates.getX() > this_street_coordinates.get(this_street_coordinates.size()-1).getX())
+        {
+            return false;
+        }
+
+        stop.setStreet(this);
+
+        all_stops_list.add(stop);
+
         return true;
     }
 
