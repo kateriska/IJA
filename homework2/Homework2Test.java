@@ -111,6 +111,10 @@ public class Homework2Test {
         stop3 = Stop.defaultStop("stop3", c1);
         s3.addStop(stop3);
 
+        System.out.println(stop3);
+        System.out.println(s1.getStops());
+        System.out.println(s3.getStops());
+
         line1 = Line.defaultLine("10");
         Assertions.assertTrue(line1.addStop(stop1), "Prvni vlozeni zastavky vzdy uspesne");
         Assertions.assertFalse(line1.addStop(stop3), "Stop3 nelze vlozit - ulice nenavazuji");
