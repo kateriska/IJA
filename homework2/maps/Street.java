@@ -37,9 +37,9 @@ public class Street {
     }
 
     public static Street defaultStreet(String first, Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate_end) {
-        double length1 = Math.sqrt(Math.pow(coordinate2.getX() - coordinate1.getX(),2) + Math.pow(coordinate2.getY() - coordinate1.getY(),2));
-        double length2 = Math.sqrt(Math.pow(coordinate_end.getX() - coordinate1.getX(),2) + Math.pow(coordinate_end.getY() - coordinate1.getY(),2));
-        double length3 = Math.sqrt(Math.pow(coordinate2.getX() - coordinate_end.getX(),2) + Math.pow(coordinate2.getY() - coordinate_end.getY(),2));
+        double length1 = Math.sqrt(Math.pow(coordinate2.diffX(coordinate1),2) + Math.pow(coordinate2.diffY(coordinate1),2));
+        double length2 = Math.sqrt(Math.pow(coordinate_end.diffX(coordinate1),2) + Math.pow(coordinate_end.diffY(coordinate1),2));
+        double length3 = Math.sqrt(Math.pow(coordinate2.diffX(coordinate_end),2) + Math.pow(coordinate2.diffY(coordinate_end),2));
 
         if (Math.pow(length1,2) + Math.pow(length3,2) != Math.pow(length2,2))
         {

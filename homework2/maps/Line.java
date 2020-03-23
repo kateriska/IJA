@@ -65,16 +65,22 @@ public class Line {
 
         System.out.println(stops_map);
         System.out.println(streets_map);
-        java.util.AbstractMap.SimpleImmutableEntry<Street,Stop> entry;
+        java.util.AbstractMap.SimpleImmutableEntry<Street,Stop> entry = new java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>(null, null);
+
         for (Street s : streets_map)
         {
+            //java.util.AbstractMap.SimpleImmutableEntry<Street,Stop> entry;
             System.out.println(s.getId());
             System.out.println(s.getStops());
             //System.out.println(s.getStops().get(0).toString());
-            
+
             if (s.getStops().isEmpty() == false)
             {
-                entry = new java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>(s,s.getStops().get(0));
+                for (int i = 0; i < s.getStops().size(); i++)
+                {
+                    entry = new java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>(s,s.getStops().get(i));
+                }
+
             }
             else
             {
