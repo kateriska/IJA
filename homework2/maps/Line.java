@@ -21,7 +21,7 @@ public class Line {
     public boolean addStop(Stop stop)
     {
         stops_map.add(stop);
-        street_stop_map.put(stop.getStreet(), stop);
+       //street_stop_map.put(stop.getStreet(), stop);
         addStreet(stop.getStreet());
 
         if (streets_map.size() > 1)
@@ -29,6 +29,8 @@ public class Line {
             System.out.println("Aspon dve zastavky v ulici");
             if (streets_map.get(0).follows(streets_map.get(1)) == false || streets_map.get(0).follows(streets_map.get(1)) == false)
             {
+                stops_map.remove(stop);
+                streets_map.remove(stop.getStreet());
                 return false;
             }
         }
@@ -59,7 +61,35 @@ public class Line {
 
     public java.util.List<java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>> getRoute()
     {
-        return null;
+        List<java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>> roads_map = new ArrayList<java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>>();
+
+        System.out.println(stops_map);
+        System.out.println(streets_map);
+        java.util.AbstractMap.SimpleImmutableEntry<Street,Stop> entry;
+        for (Street s : streets_map)
+        {
+            System.out.println(s.getId());
+            System.out.println(s.getStops());
+            //System.out.println(s.getStops().get(0).toString());
+            
+            if (s.getStops().isEmpty() == false)
+            {
+                entry = new java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>(s,s.getStops().get(0));
+            }
+            else
+            {
+                entry = new java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>(s,null);
+            }
+
+            //route_map.add(s, s.getStops());
+
+            System.out.println(entry);
+            roads_map.add(entry);
+
+        }
+
+        return roads_map;
+
     }
 
 

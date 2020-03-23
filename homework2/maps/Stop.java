@@ -43,4 +43,10 @@ public class Stop {
     {
         this.street_name = s;
     }
+
+    @Override
+    public String toString() {
+        String stop_converstion = "stop(" + this.getId() + ")";
+        return stop_converstion;
+    }
 }
