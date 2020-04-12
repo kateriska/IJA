@@ -366,7 +366,7 @@ public class TransportLine {
     // affected_points - array of points affected with slowing traffic
     // slow_duration - duration between neighbour coordinates in street affected with slow traffic
     // slow_stop_duration - duration of waiting in stop in street affected with slow traffic
-    public void createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration)
+    public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration)
     {
         // coordinates of path for vehicle on transportline
         ArrayList<Coordinate> line_coordinates = this.transportLinePath();
@@ -430,10 +430,12 @@ public class TransportLine {
         }
 
         //timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
-        this.setLineMovement(timeline); // set movement of specified line
-        timeline.play(); // play final animation
+        //this.setLineMovement(timeline); // set movement of specified line
+        //timeline.play(); // play final animation
 
         anchor_pane_map.getChildren().add(vehicle);
+
+        return timeline;
     }
 
 
