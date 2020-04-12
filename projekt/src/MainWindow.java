@@ -73,9 +73,9 @@ public class MainWindow extends Application {
         anchor_pane_menu.setAlignment(Pos.CENTER);
 
         Label traffic_label = new Label("Mark streets affected with traffic in map");
-        Label traffic_choose = new Label("Choose size of traffic on street:");
+        Label traffic_choose = new Label("Choose higher size of traffic on marked streets (default 2):");
         TextField box_traffic = new TextField();
-        box_traffic.setPrefWidth(10);
+
 
 
         Button traffic_button = new Button("Show");
@@ -100,7 +100,8 @@ public class MainWindow extends Application {
                     }
                 });
 
-        Scene scene = new Scene(root, 1000, 700); // set width and height of window
+        Scene scene = new Scene(root, 1100, 700); // set width and height of window
+
 
 
         File file = new File("C:/Users/forto/IdeaProjects/proj/lib/map.png");
@@ -185,7 +186,9 @@ public class MainWindow extends Application {
          */
         ArrayList<Coordinate> affected_points = new ArrayList<Coordinate>();
         for (TransportLine t : all_transport_lines_list) {
-            t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0);
+            Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0);
+            timeline.play();
+            t.setLineMovement(timeline);
         }
 
         /*
@@ -244,55 +247,60 @@ public class MainWindow extends Application {
                 );
         }
 
-        /*
-        simulation of slowing the traffic with specified street
-         */
+
         for (Line l : all_streets_lines)
         {
             l.setOnMouseClicked(new EventHandler<MouseEvent>() { // if mouse clicked on some Street object
                 @Override
                 public void handle(MouseEvent event) {
-                    for (TransportLine t : all_transport_lines_list) {
-                        ArrayList<Coordinate> affected_points = new ArrayList<Coordinate>();
-                        for (Street s : t.getStreetsMap()) // if Street is in some TransportLine
-                        {
-                            if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
-                                System.out.println("Street is slower now from line");
-                                t.getLineMovement().stop(); // stop old animation of particular TransportLine
-                                //root.getChildren().remove(t.getLineVehicles().get(0));
-
-                                anchor_pane_map.getChildren().remove(t.getLineVehicle());
-                                t.clearLineVehicle();
-
-                                l.setStroke(Color.BLACK); // mark affected slower street with black color
-
-                                ArrayList<Integer> affected_points_indexes = new ArrayList<Integer>(); // get which points of path are affected with slowing the traffic
-                               // ArrayList<Coordinate> affected_points = new ArrayList<Coordinate>();
-                                for (int i = 0; i < t.transportLinePath().size(); i++) {
-                                    if (t.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (t.transportLinePath().get(i).getX() == s.begin().getX() && t.transportLinePath().get(i).getY() == s.begin().getY()) || (t.transportLinePath().get(i).getX() == s.end().getX() && t.transportLinePath().get(i).getY() == s.end().getY())) {
-                                        System.out.println("Affected points: " + t.transportLinePath().get(i).getX() + ", " + t.transportLinePath().get(i).getY());
-                                        affected_points_indexes.add(i);
-                                        affected_points.add(t.transportLinePath().get(i));
-                                    }
-                                }
-
-                                // create animation with traffic on particular street
-                                t.createLineAnimation(anchor_pane_map, 2, 1, affected_points, 8, 2);
-                            }
-                        }
-                    }
+                    l.setStroke(Color.BLACK);
                 }
             }
             );
         }
 
         traffic_button.setOnAction(event -> {
-            for (Coordinate c : affected_points)
-            {
-                System.out.println(c.getX() + ", " + c.getY());
+            ArrayList<Line> affected_lines = new ArrayList<Line>();
+            for (Line l : all_streets_lines) {
+                if (l.getStroke().equals(Color.BLACK)) {
+                    affected_lines.add(l);
+                }
             }
-        });
+
+            for (TransportLine t : all_transport_lines_list) {
+                ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
+
+                for (Street s : t.getStreetsMap()) {
+                    for (Line l : affected_lines) {
+                        if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
+                            System.out.println("Street is slower now from line");
+                            //t.getLineMovement().stop(); // stop old animation of particular TransportLine
+                            //root.getChildren().remove(t.getLineVehicles().get(0));
+
+                            //anchor_pane_map.getChildren().remove(t.getLineVehicle());
+                            //t.clearLineVehicle();
+
+                            for (int i = 0; i < t.transportLinePath().size(); i++) {
+                                if (t.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (t.transportLinePath().get(i).getX() == s.begin().getX() && t.transportLinePath().get(i).getY() == s.begin().getY()) || (t.transportLinePath().get(i).getX() == s.end().getX() && t.transportLinePath().get(i).getY() == s.end().getY())) {
+                                    System.out.println("Affected points: " + t.transportLinePath().get(i).getX() + ", " + t.transportLinePath().get(i).getY());
+                                    new_affected_points.add(t.transportLinePath().get(i));
+                                }
+                            }
+                        }
+                    }
+                }
+                Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, Integer.parseInt(box_traffic.getText()), 2);
+                t.getLineMovement().setOnFinished(e -> new_timeline.play());
+                t.setLineMovement(new_timeline);
+            }
+
+        }
+       );
+
+
+
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show(); // show GUI scene
     }
 
