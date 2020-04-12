@@ -32,6 +32,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class MainWindow extends Application {
 
@@ -260,41 +262,56 @@ public class MainWindow extends Application {
         }
 
         traffic_button.setOnAction(event -> {
-            ArrayList<Line> affected_lines = new ArrayList<Line>();
-            for (Line l : all_streets_lines) {
-                if (l.getStroke().equals(Color.BLACK)) {
-                    affected_lines.add(l);
+
+            try {
+                int traffic_size = Integer.parseUnsignedInt(box_traffic.getText());
+
+                ArrayList<Line> affected_lines = new ArrayList<Line>();
+                for (Line l : all_streets_lines) {
+                    if (l.getStroke().equals(Color.BLACK)) {
+                        affected_lines.add(l);
+                    }
                 }
-            }
 
-            for (TransportLine t : all_transport_lines_list) {
-                ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
+                for (TransportLine t : all_transport_lines_list) {
+                    ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
 
-                for (Street s : t.getStreetsMap()) {
-                    for (Line l : affected_lines) {
-                        if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
-                            System.out.println("Street is slower now from line");
-                            //t.getLineMovement().stop(); // stop old animation of particular TransportLine
-                            //root.getChildren().remove(t.getLineVehicles().get(0));
+                    for (Street s : t.getStreetsMap()) {
+                        for (Line l : affected_lines) {
+                            if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
+                                System.out.println("Street is slower now from line");
+                                //t.getLineMovement().stop(); // stop old animation of particular TransportLine
+                                //root.getChildren().remove(t.getLineVehicles().get(0));
 
-                            //anchor_pane_map.getChildren().remove(t.getLineVehicle());
-                            //t.clearLineVehicle();
+                                //anchor_pane_map.getChildren().remove(t.getLineVehicle());
+                                //t.clearLineVehicle();
 
-                            for (int i = 0; i < t.transportLinePath().size(); i++) {
-                                if (t.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (t.transportLinePath().get(i).getX() == s.begin().getX() && t.transportLinePath().get(i).getY() == s.begin().getY()) || (t.transportLinePath().get(i).getX() == s.end().getX() && t.transportLinePath().get(i).getY() == s.end().getY())) {
-                                    System.out.println("Affected points: " + t.transportLinePath().get(i).getX() + ", " + t.transportLinePath().get(i).getY());
-                                    new_affected_points.add(t.transportLinePath().get(i));
+                                for (int i = 0; i < t.transportLinePath().size(); i++) {
+                                    if (t.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (t.transportLinePath().get(i).getX() == s.begin().getX() && t.transportLinePath().get(i).getY() == s.begin().getY()) || (t.transportLinePath().get(i).getX() == s.end().getX() && t.transportLinePath().get(i).getY() == s.end().getY())) {
+                                        System.out.println("Affected points: " + t.transportLinePath().get(i).getX() + ", " + t.transportLinePath().get(i).getY());
+                                        new_affected_points.add(t.transportLinePath().get(i));
+                                    }
                                 }
                             }
                         }
                     }
+                    Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2);
+                    t.getLineMovement().setOnFinished(e -> new_timeline.play());
+                    t.setLineMovement(new_timeline);
                 }
-                Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, Integer.parseInt(box_traffic.getText()), 2);
-                t.getLineMovement().setOnFinished(e -> new_timeline.play());
-                t.setLineMovement(new_timeline);
-            }
 
+
+            } catch (Exception e) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Bad parameters");
+                alert.setHeaderText("Use unsigned int as values");
+                alert.showAndWait();
+
+
+            }
         }
+
+
        );
 
 
