@@ -78,12 +78,15 @@ public class MainWindow extends Application {
         Label traffic_choose = new Label("Choose higher size of traffic on marked streets (default 2):");
         TextField box_traffic = new TextField();
 
-
-
         Button traffic_button = new Button("Show");
 
+        Label closed_streets_label = new Label("Mark closed streets in map");
+        Button closed_streets_button = new Button("Close street (streets)");
+        Label detour_label = new Label("Mark detour for closed street");
+        Button detour_streets_button = new Button("Save detour");
 
-        anchor_pane_menu.getChildren().addAll(traffic_label, traffic_choose, box_traffic, traffic_button);
+
+        anchor_pane_menu.getChildren().addAll(traffic_label, traffic_choose, box_traffic, traffic_button, closed_streets_label, closed_streets_button);
 
         // zoom map
         anchor_pane_map.setOnScroll(
@@ -115,6 +118,7 @@ public class MainWindow extends Application {
         // beginning of coordinates [0,0] is in left upon corner of whole window and also it is beginning for image
 
 
+        /*
         Point2D p = MouseInfo.getPointerInfo().getLocation();
 
         root.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -125,6 +129,8 @@ public class MainWindow extends Application {
                 System.out.println(event.getSceneY());
             }
         });
+
+         */
 
 
         ArrayList<Street> streets_list = setMapStreets(); // Street objects created from file
@@ -198,55 +204,59 @@ public class MainWindow extends Application {
         TASK - Show this info about vehicle in some textbox under the map
          */
         // create an event after mouse click if the vehicle of line is clicked
+
         for (TransportLine t : all_transport_lines_list) {
-                t.getLineVehicle().setOnMouseClicked(new EventHandler<MouseEvent>() { // create an event after mouse click
-                            @Override
-                            public void handle(MouseEvent event) {
-                                // change color of clicked vehicle
-                                if (t.getLineVehicle().getFill() == t.getTransportLineColor()) {
-                                    t.getLineVehicle().setFill(Color.LIGHTGREEN);
-                                }
-                                else {
-                                    t.getLineVehicle().setFill(t.getTransportLineColor());
-                                }
+            for (Circle c : t.getLineVehicles()) {
+                //System.out.println(c);
+                c.setOnMouseClicked(new EventHandler<MouseEvent>() { // create an event after mouse click
+                    @Override
+                    public void handle(MouseEvent event) {
+                        System.out.println(c);
+                        // change color of clicked vehicle
+                        if (c.getFill() == t.getTransportLineColor()) {
+                            c.setFill(Color.LIGHTGREEN);
+                        } else {
+                            c.setFill(t.getTransportLineColor());
+                        }
 
-                                System.out.println("This is line number " + t.getLineId() + " with route " + t.printRoute() );
-                                lines_info.setText("This is line number " + t.getLineId() + "\n");
-                                lines_info.setText(lines_info.getText() + "Route: " + t.printRoute() + "\n");
+                        //System.out.println("This is line number " + t.getLineId() + " with route " + t.printRoute());
+                        lines_info.setText("This is line number " + t.getLineId() + "\n");
+                        lines_info.setText(lines_info.getText() + "Route: " + t.printRoute() + "\n");
 
-                                // get actual coordinates of vehicle
-                                int vehicle_actual_x = (int) Math.round(t.getLineVehicle().getCenterX());
-                                int vehicle_actual_y = (int) Math.round(t.getLineVehicle().getCenterY());
+                        // get actual coordinates of vehicle
+                        int vehicle_actual_x = (int) Math.round(c.getCenterX());
+                        int vehicle_actual_y = (int) Math.round(c.getCenterY());
 
-                                Coordinate vehicle_actual_coordinates = new Coordinate(vehicle_actual_x, vehicle_actual_y);
+                        Coordinate vehicle_actual_coordinates = new Coordinate(vehicle_actual_x, vehicle_actual_y);
 
-                                // print next stop and previous stops of line
-                                for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
-                                    Coordinate coordinates1 = t.transportLinePath().get(i);
-                                    Coordinate coordinates2 = t.transportLinePath().get(i + 1);
-                                    String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
+                        // print next stop and previous stops of line
+                        for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
+                            Coordinate coordinates1 = t.transportLinePath().get(i);
+                            Coordinate coordinates2 = t.transportLinePath().get(i + 1);
+                            String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
 
-                                    if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
-                                        System.out.println("Previous stops:");
-                                        lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
-                                        for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
-                                            if (j < t.transportLinePathIDs().indexOf(id_coordinates_2) && t.transportLinePathIDs().get(j).contains("Stop")) {
-                                                System.out.println(t.transportLinePathIDs().get(j));
-                                                lines_info.setText(lines_info.getText() + t.transportLinePathIDs().get(j) + "\n");
-                                            } else {
-                                                if (t.transportLinePathIDs().get(j).contains("Stop")) {
-                                                    System.out.println("Next stop is " + t.transportLinePathIDs().get(j));
-                                                    lines_info.setText(lines_info.getText() + "Next stop is " + t.transportLinePathIDs().get(j) + "\n");
-                                                    break;
-                                                }
-                                            }
+                            if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
+                                //System.out.println("Previous stops:");
+                                lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
+                                for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
+                                    if (j < t.transportLinePathIDs().indexOf(id_coordinates_2) && t.transportLinePathIDs().get(j).contains("Stop")) {
+                                        //System.out.println(t.transportLinePathIDs().get(j));
+                                        lines_info.setText(lines_info.getText() + t.transportLinePathIDs().get(j) + "\n");
+                                    } else {
+                                        if (t.transportLinePathIDs().get(j).contains("Stop")) {
+                                            //System.out.println("Next stop is " + t.transportLinePathIDs().get(j));
+                                            lines_info.setText(lines_info.getText() + "Next stop is " + t.transportLinePathIDs().get(j) + "\n");
+                                            break;
                                         }
-                                        break;
                                     }
                                 }
+                                break;
                             }
                         }
+                    }
+                    }
                 );
+            }
         }
 
 
@@ -255,7 +265,22 @@ public class MainWindow extends Application {
             l.setOnMouseClicked(new EventHandler<MouseEvent>() { // if mouse clicked on some Street object
                 @Override
                 public void handle(MouseEvent event) {
-                    l.setStroke(Color.BLACK);
+                    if (l.getStroke().equals(Color.BLACK) == false)
+                    {
+                        l.setStroke(Color.BLACK);
+                    }
+                    else
+                    {
+                        for (TransportLine t : all_transport_lines_list) {
+                            for (Street s : t.getStreetsMap())
+                            {
+                                if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY())
+                                {
+                                    l.setStroke(t.getTransportLineColor());
+                                }
+                            }
+                        }
+                    }
                 }
             }
             );
@@ -296,8 +321,18 @@ public class MainWindow extends Application {
                         }
                     }
                     Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2);
-                    t.getLineMovement().setOnFinished(e -> new_timeline.play());
+
+                    //t.getLineMovement().setOnFinished(e -> new_timeline.play());
+
+                    new_timeline.setDelay(Duration.seconds(10));
                     t.setLineMovement(new_timeline);
+                    new_timeline.play();
+                    /*
+                    t.getLineMovement().stop();
+                    new_timeline.play();
+                    t.setLineMovement(new_timeline);
+
+                     */
                 }
 
 
@@ -310,9 +345,54 @@ public class MainWindow extends Application {
 
             }
         }
-
-
        );
+
+        closed_streets_button.setOnAction(event -> {
+            ArrayList<Line> closed_lines = new ArrayList<Line>();
+            for (Line l : all_streets_lines) {
+                if (l.getStroke().equals(Color.BLACK))
+                {
+                    closed_lines.add(l);
+                }
+                else
+                {
+                    for (TransportLine t : all_transport_lines_list) {
+                        for (Street s : t.getStreetsMap())
+                        {
+                            if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY())
+                            {
+                                l.setStroke(t.getTransportLineColor());
+                            }
+                        }
+                    }
+                }
+            }
+
+            anchor_pane_menu.getChildren().addAll(detour_label, detour_streets_button);
+
+        }
+        );
+
+        detour_streets_button.setOnAction(event ->
+        {
+            ArrayList<Line> detour_lines = new ArrayList<Line>();
+            for (Line l : all_streets_lines) {
+                if (l.getStroke().equals(Color.BLACK)) {
+                    detour_lines.add(l);
+                } else {
+                    for (TransportLine t : all_transport_lines_list) {
+                        for (Street s : t.getStreetsMap()) {
+                            if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
+                                l.setStroke(t.getTransportLineColor());
+                            }
+                        }
+                    }
+                }
+            }
+
+            
+
+        });
 
 
 
