@@ -74,9 +74,14 @@ public class MainWindow extends Application {
         anchor_pane_menu.setSpacing(15);
         anchor_pane_menu.setAlignment(Pos.CENTER);
 
+        Button restart_timer = new Button("Restart timer");
+
         Label traffic_label = new Label("Mark streets affected with traffic in map");
         Label traffic_choose = new Label("Choose higher size of traffic on marked streets (default 2):");
         TextField box_traffic = new TextField();
+        box_traffic.setAlignment(Pos.CENTER);
+        box_traffic.setMaxWidth(150);
+        box_traffic.setPromptText("Set 2 for default");
 
         Button traffic_button = new Button("Show");
 
@@ -86,7 +91,7 @@ public class MainWindow extends Application {
         Button detour_streets_button = new Button("Save detour");
 
 
-        anchor_pane_menu.getChildren().addAll(traffic_label, traffic_choose, box_traffic, traffic_button, closed_streets_label, closed_streets_button);
+        anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_streets_label, closed_streets_button);
 
         // zoom map
         anchor_pane_map.setOnScroll(
@@ -184,9 +189,12 @@ public class MainWindow extends Application {
         the line is not travel through all street but only part of it
          */
 
+
         for (TransportLine t : all_transport_lines_list) {
             t.highlightTransportLine(anchor_pane_map, streets_list, all_streets_lines);
         }
+
+
 
         //ArrayList<Circle> all_line_original_vehicles = new ArrayList<Circle>();
         /*
@@ -254,7 +262,7 @@ public class MainWindow extends Application {
             t.setLineMovement(timeline);
         }
 
-        
+
         for (Line l : all_streets_lines)
         {
             l.setOnMouseClicked(new EventHandler<MouseEvent>() { // if mouse clicked on some Street object
@@ -280,6 +288,18 @@ public class MainWindow extends Application {
             }
             );
         }
+
+        restart_timer.setOnAction(event -> {
+            for (TransportLine t : all_transport_lines_list)
+            {
+                t.getLineMovement().stop();
+                t.clearLineVehicles(anchor_pane_map);
+                Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler);
+                timeline.play();
+                t.setLineMovement(timeline);
+
+            }
+        });
 
         traffic_button.setOnAction(event -> {
 
@@ -347,6 +367,7 @@ public class MainWindow extends Application {
             for (Line l : all_streets_lines) {
                 if (l.getStroke().equals(Color.BLACK))
                 {
+                    l.setStroke(Color.RED);
                     closed_lines.add(l);
                 }
                 else
@@ -361,6 +382,8 @@ public class MainWindow extends Application {
                         }
                     }
                 }
+
+
             }
 
             anchor_pane_menu.getChildren().addAll(detour_label, detour_streets_button);
