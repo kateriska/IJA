@@ -2,6 +2,8 @@ package maps;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -382,7 +384,7 @@ public class TransportLine {
     // affected_points - array of points affected with slowing traffic
     // slow_duration - duration between neighbour coordinates in street affected with slow traffic
     // slow_stop_duration - duration of waiting in stop in street affected with slow traffic
-    public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration)
+    public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, EventHandler<MouseEvent> handler)
     {
         // coordinates of path for vehicle on transportline
         ArrayList<Coordinate> line_coordinates = this.transportLinePath();
@@ -396,6 +398,7 @@ public class TransportLine {
         vehicle.setFill(this.getTransportLineColor());
         vehicle.setStrokeWidth(5);
         addLineVehicles(vehicle);
+        vehicle.setOnMouseClicked(handler);
 
         Timeline timeline = new Timeline();
         int original_duration = duration;
