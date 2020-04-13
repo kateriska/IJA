@@ -257,15 +257,16 @@ public class TransportLine {
     }
 
     // set vehicle of TransportLine (circle)
+    /*
     public void setVehicle(Circle c)
     {
-        vehicle = c;
+        this.vehicle = c;
         return;
     }
 
     public Circle getLineVehicle()
     {
-        return vehicle;
+        return this.vehicle;
     }
 
     public void clearLineVehicle()
@@ -273,6 +274,21 @@ public class TransportLine {
         vehicle = null;
         return;
     }
+
+     */
+
+    public ArrayList<Circle> getLineVehicles()
+    {
+        return this.all_line_vehicles;
+    }
+
+    public void addLineVehicles(Circle c)
+    {
+        this.all_line_vehicles.add(c);
+        return;
+    }
+
+
 
     // set the animation of line movement for TransportLine
     public void setLineMovement(Timeline t)
@@ -379,7 +395,7 @@ public class TransportLine {
         vehicle.setStroke(Color.AZURE);
         vehicle.setFill(this.getTransportLineColor());
         vehicle.setStrokeWidth(5);
-        this.setVehicle(vehicle);
+        addLineVehicles(vehicle);
 
         Timeline timeline = new Timeline();
         int original_duration = duration;
