@@ -201,6 +201,7 @@ public class Street {
             line2.setStroke(color);
             line2.setStrokeWidth(5);
             all_streets_lines.add(line1);
+            all_streets_lines.add(line2);
             anchor_pane_map.getChildren().addAll(line1, line2);
         } else {
             line1 = new Line(this.getCoordinates().get(0).getX(), this.getCoordinates().get(0).getY(), this.getCoordinates().get(2).getX(), this.getCoordinates().get(2).getY());

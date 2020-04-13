@@ -290,6 +290,14 @@ public class TransportLine {
         return;
     }
 
+    public void clearLineVehicles(AnchorPane anchor_pane_map)
+    {
+        for (Circle c : all_line_vehicles)
+        {
+            anchor_pane_map.getChildren().remove(c);
+        }
+    }
+
 
 
     // set the animation of line movement for TransportLine
