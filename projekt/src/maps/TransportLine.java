@@ -24,6 +24,7 @@ public class TransportLine {
     Timeline timeline = new Timeline();
     Circle vehicle = null;
     Paint line_color = null;
+    Paint selected_line_color = null;
 
     public TransportLine()
     {
@@ -166,6 +167,11 @@ public class TransportLine {
                 }
             }
 
+            if (s.getCoordinates().get(1) != null)
+            {
+                line_coordinates.add(s.getCoordinates().get(1));
+            }
+
             //11
             if (this_street1.getX() == next_street1.getX() && this_street1.getY() == next_street1.getY())
             {
@@ -186,6 +192,7 @@ public class TransportLine {
             {
                 line_coordinates.add(this_street2);
             }
+
 
 
         }
@@ -228,6 +235,11 @@ public class TransportLine {
                 {
                     line_coordinates_ids.add(stop.getId());
                 }
+            }
+
+            if (s.getCoordinates().get(1) != null)
+            {
+                line_coordinates_ids.add(s.getId());
             }
 
             //11
@@ -320,6 +332,16 @@ public class TransportLine {
     public Paint getTransportLineColor()
     {
         return line_color;
+    }
+
+    public void setTransportLineSelectedColor(Paint p)
+    {
+        selected_line_color = p;
+    }
+
+    public Paint getTransportLineSelectedColor()
+    {
+        return selected_line_color;
     }
 
     /*
