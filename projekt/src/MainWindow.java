@@ -192,74 +192,69 @@ public class MainWindow extends Application {
         /*
         create a vehicle (circle) for every TransportLine object and move along the path of TransportLine
          */
+        EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                if (e.getSource() instanceof Circle) {
+                    Circle c = (Circle) e.getSource();
+
+                    for (TransportLine t : all_transport_lines_list) {
+                        if (t.getLineVehicles().contains(c)) {
+                            if (c.getFill() == t.getTransportLineColor()) {
+                                c.setFill(Color.LIGHTGREEN);
+                            } else {
+                                c.setFill(t.getTransportLineColor());
+                            }
+
+                            //System.out.println("This is line number " + t.getLineId() + " with route " + t.printRoute());
+                            lines_info.setText("This is line number " + t.getLineId() + "\n");
+                            lines_info.setText(lines_info.getText() + "Route: " + t.printRoute() + "\n");
+
+                            // get actual coordinates of vehicle
+                            int vehicle_actual_x = (int) Math.round(c.getCenterX());
+                            int vehicle_actual_y = (int) Math.round(c.getCenterY());
+
+                            Coordinate vehicle_actual_coordinates = new Coordinate(vehicle_actual_x, vehicle_actual_y);
+
+                            // print next stop and previous stops of line
+                            for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
+                                Coordinate coordinates1 = t.transportLinePath().get(i);
+                                Coordinate coordinates2 = t.transportLinePath().get(i + 1);
+                                String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
+
+                                if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
+                                    //System.out.println("Previous stops:");
+                                    lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
+                                    for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
+                                        if (j < t.transportLinePathIDs().indexOf(id_coordinates_2) && t.transportLinePathIDs().get(j).contains("Stop")) {
+                                            //System.out.println(t.transportLinePathIDs().get(j));
+                                            lines_info.setText(lines_info.getText() + t.transportLinePathIDs().get(j) + "\n");
+                                        } else {
+                                            if (t.transportLinePathIDs().get(j).contains("Stop")) {
+                                                //System.out.println("Next stop is " + t.transportLinePathIDs().get(j));
+                                                lines_info.setText(lines_info.getText() + "Next stop is " + t.transportLinePathIDs().get(j) + "\n");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        };
+
         ArrayList<Coordinate> affected_points = new ArrayList<Coordinate>();
         for (TransportLine t : all_transport_lines_list) {
-            Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0);
+            Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler);
             timeline.play();
             t.setLineMovement(timeline);
         }
 
-        /*
-        after clicking on original vehicle of line show some info on console
-        TASK - Show this info about vehicle in some textbox under the map
-         */
-        // create an event after mouse click if the vehicle of line is clicked
-
-        for (TransportLine t : all_transport_lines_list) {
-            for (Circle c : t.getLineVehicles()) {
-                //System.out.println(c);
-                c.setOnMouseClicked(new EventHandler<MouseEvent>() { // create an event after mouse click
-                    @Override
-                    public void handle(MouseEvent event) {
-                        System.out.println(c);
-                        // change color of clicked vehicle
-                        if (c.getFill() == t.getTransportLineColor()) {
-                            c.setFill(Color.LIGHTGREEN);
-                        } else {
-                            c.setFill(t.getTransportLineColor());
-                        }
-
-                        //System.out.println("This is line number " + t.getLineId() + " with route " + t.printRoute());
-                        lines_info.setText("This is line number " + t.getLineId() + "\n");
-                        lines_info.setText(lines_info.getText() + "Route: " + t.printRoute() + "\n");
-
-                        // get actual coordinates of vehicle
-                        int vehicle_actual_x = (int) Math.round(c.getCenterX());
-                        int vehicle_actual_y = (int) Math.round(c.getCenterY());
-
-                        Coordinate vehicle_actual_coordinates = new Coordinate(vehicle_actual_x, vehicle_actual_y);
-
-                        // print next stop and previous stops of line
-                        for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
-                            Coordinate coordinates1 = t.transportLinePath().get(i);
-                            Coordinate coordinates2 = t.transportLinePath().get(i + 1);
-                            String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
-
-                            if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
-                                //System.out.println("Previous stops:");
-                                lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
-                                for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
-                                    if (j < t.transportLinePathIDs().indexOf(id_coordinates_2) && t.transportLinePathIDs().get(j).contains("Stop")) {
-                                        //System.out.println(t.transportLinePathIDs().get(j));
-                                        lines_info.setText(lines_info.getText() + t.transportLinePathIDs().get(j) + "\n");
-                                    } else {
-                                        if (t.transportLinePathIDs().get(j).contains("Stop")) {
-                                            //System.out.println("Next stop is " + t.transportLinePathIDs().get(j));
-                                            lines_info.setText(lines_info.getText() + "Next stop is " + t.transportLinePathIDs().get(j) + "\n");
-                                            break;
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    }
-                );
-            }
-        }
-
-
+        
         for (Line l : all_streets_lines)
         {
             l.setOnMouseClicked(new EventHandler<MouseEvent>() { // if mouse clicked on some Street object
@@ -320,7 +315,7 @@ public class MainWindow extends Application {
                             }
                         }
                     }
-                    Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2);
+                    Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2, handler);
 
                     //t.getLineMovement().setOnFinished(e -> new_timeline.play());
 
@@ -390,7 +385,7 @@ public class MainWindow extends Application {
                 }
             }
 
-            
+
 
         });
 
