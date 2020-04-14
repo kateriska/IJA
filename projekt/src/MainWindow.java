@@ -30,6 +30,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import java.awt.MouseInfo;
+import javafx.scene.Node;
 
 public class MainWindow extends Application {
 
@@ -128,6 +130,8 @@ public class MainWindow extends Application {
         });
 
          */
+
+
 
         ArrayList<Street> streets_list = setMapStreets(); // Street objects created from file
 
@@ -309,11 +313,6 @@ public class MainWindow extends Application {
                         for (Line l : affected_lines) {
                             if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
                                 System.out.println("Street is slower now from line");
-                                //t.getLineMovement().stop(); // stop old animation of particular TransportLine
-                                //root.getChildren().remove(t.getLineVehicles().get(0));
-
-                                //anchor_pane_map.getChildren().remove(t.getLineVehicle());
-                                //t.clearLineVehicle();
 
                                 for (int i = 0; i < t.transportLinePath().size(); i++) {
                                     if (t.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (t.transportLinePath().get(i).getX() == s.begin().getX() && t.transportLinePath().get(i).getY() == s.begin().getY()) || (t.transportLinePath().get(i).getX() == s.end().getX() && t.transportLinePath().get(i).getY() == s.end().getY())) {
@@ -324,19 +323,66 @@ public class MainWindow extends Application {
                             }
                         }
                     }
-                    Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2, handler);
 
-                    //t.getLineMovement().setOnFinished(e -> new_timeline.play());
-
-                    new_timeline.setDelay(Duration.seconds(10));
-                    t.setLineMovement(new_timeline);
-                    new_timeline.play();
-                    /*
                     t.getLineMovement().stop();
-                    new_timeline.play();
-                    t.setLineMovement(new_timeline);
+                    System.out.println(t.getLineId());
 
-                     */
+                    Circle source_vehicle = t.getLineVehicles().get(t.getLineVehicles().size() - 1);
+
+                    int actual_x = 0;
+                    int actual_y = 0;
+
+                    for (Node n : anchor_pane_map.getChildren())
+                    {
+                        if (n.equals(source_vehicle))
+                        {
+                            Circle circle = (Circle) n;
+                            actual_x = (int) Math.round(circle.getCenterX());
+                            actual_y = (int) Math.round(circle.getCenterY());
+                            break;
+                        }
+                    }
+                    System.out.println(source_vehicle.getCenterX());
+                    System.out.println(source_vehicle.getCenterY());
+
+                    anchor_pane_map.getChildren().remove(source_vehicle);
+
+                    Circle affected_vehicle = new Circle(actual_x, actual_y, 10);
+                    affected_vehicle.setStroke(Color.AZURE);
+                    affected_vehicle.setFill(t.getTransportLineSelectedColor());
+                    affected_vehicle.setStrokeWidth(5);
+                    anchor_pane_map.getChildren().addAll(affected_vehicle);
+                    Coordinate actual_c = new Coordinate(actual_x, actual_y);
+
+                    ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
+
+                    for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
+                        Coordinate coordinates1 = t.transportLinePath().get(i);
+                        Coordinate coordinates2 = t.transportLinePath().get(i + 1);
+                        String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
+
+                        if (actual_c.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
+
+                            for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
+                                if (j >= t.transportLinePathIDs().indexOf(id_coordinates_2)) {
+                                    System.out.println(t.transportLinePathIDs().get(j));
+                                    line_coordinates_part.add(t.transportLinePath().get(j));
+                                }
+                            }
+
+                        }
+
+                    }
+
+                    Timeline affected_timeline = t.createPartLineAnimation(2, 1, new_affected_points, traffic_size, 2, affected_vehicle, line_coordinates_part);
+                    affected_timeline.play();
+
+                    Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2, handler);
+                    t.getLineMovement().setOnFinished(e -> {
+                        new_timeline.play();
+                        anchor_pane_map.getChildren().remove(affected_vehicle);
+                    });
+                    t.setLineMovement(new_timeline); // set movement of specified line
                 }
 
 
