@@ -2,8 +2,8 @@ Line - 3
 Stop12
 Stop15
 Stop18
-Stop13
-Stop17
+Stop34
+Street5
 Stop5
 Street10
 Stop1
