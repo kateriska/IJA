@@ -488,11 +488,13 @@ public class TransportLine {
     }
 
     // only animated part of trasnportline
-    public Timeline createPartLineAnimation(int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, Circle vehicle, ArrayList<Coordinate> line_coordinates_part)
+    public Timeline createPartLineAnimation(int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, Circle vehicle, ArrayList<Coordinate> line_coordinates_part, EventHandler<MouseEvent> handler)
     {
         Timeline affected_timeline = new Timeline();
         int original_duration = duration;
         int original_stop_duration = stop_duration;
+        addLineVehicles(vehicle);
+        vehicle.setOnMouseClicked(handler);
 
         // add all keyframes to timeline - one keyframe means path from one coordinate to another coordinate
         // vehicle waits in stop for 1 seconds and go to another coordinate for 2 seconds (in default mode)
