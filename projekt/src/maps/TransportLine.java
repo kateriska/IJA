@@ -478,13 +478,71 @@ public class TransportLine {
             delta_time = delta_time + duration;
         }
 
-        //timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
+        timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
         //this.setLineMovement(timeline); // set movement of specified line
         //timeline.play(); // play final animation
 
         anchor_pane_map.getChildren().add(vehicle);
 
         return timeline;
+    }
+
+    // only animated part of trasnportline
+    public Timeline createPartLineAnimation(int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, Circle vehicle, ArrayList<Coordinate> line_coordinates_part)
+    {
+        Timeline affected_timeline = new Timeline();
+        int original_duration = duration;
+        int original_stop_duration = stop_duration;
+
+        // add all keyframes to timeline - one keyframe means path from one coordinate to another coordinate
+        // vehicle waits in stop for 1 seconds and go to another coordinate for 2 seconds (in default mode)
+        int delta_time = 0;
+        KeyFrame waiting_in_stop = null;
+        for (int i = 0; i < line_coordinates_part.size() - 1; i++) {
+            // if we go through street affected by slow traffic
+            if (line_coordinates_part.get(i).isInArray(affected_points) && line_coordinates_part.get(i+1).isInArray(affected_points))
+            {
+                // duration between coordinates and duration of waiting in stop is different
+                duration = slow_duration;
+                stop_duration = slow_stop_duration;
+            }
+            else
+            {
+                // else use default duration
+                duration = original_duration;
+                stop_duration = original_stop_duration;
+            }
+
+            for (Stop s : this.getStopsMap()) {
+                // if we are in stop, we wait 'stop_duration' time
+                if (line_coordinates_part.get(i).getX() == s.getCoordinate().getX() && line_coordinates_part.get(i).getY() == s.getCoordinate().getY()) {
+                    waiting_in_stop = new KeyFrame(Duration.seconds(delta_time + stop_duration), // this means waiting in stop for some time
+                            new KeyValue(vehicle.centerXProperty(), line_coordinates_part.get(i).getX()),
+                            new KeyValue(vehicle.centerYProperty(), line_coordinates_part.get(i).getY()));
+
+                    delta_time = delta_time + stop_duration;
+                    break;
+                }
+            }
+            // we travelled for 'duration' time
+            KeyFrame end = new KeyFrame(Duration.seconds(delta_time + duration), // this means that the path from one coordinate to another lasts 2 seconds
+                    new KeyValue(vehicle.centerXProperty(), line_coordinates_part.get(i + 1).getX()),
+                    new KeyValue(vehicle.centerYProperty(), line_coordinates_part.get(i + 1).getY()));
+
+            if (waiting_in_stop != null) {
+                affected_timeline.getKeyFrames().addAll(end, waiting_in_stop);
+            } else {
+                affected_timeline.getKeyFrames().addAll(end);
+            }
+
+            delta_time = delta_time + duration;
+        }
+
+        //timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
+        this.setLineMovement(affected_timeline); // set movement of specified line
+        //timeline.play(); // play final animation
+
+        return affected_timeline;
     }
 
 
