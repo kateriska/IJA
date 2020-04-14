@@ -88,7 +88,7 @@ public class MainWindow extends Application {
         Label detour_label = new Label("Mark detour for closed street");
         Button detour_streets_button = new Button("Save detour");
 
-        anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_streets_label, closed_streets_button);
+        anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
 
         // zoom map
         anchor_pane_map.setOnScroll(
@@ -109,7 +109,7 @@ public class MainWindow extends Application {
 
         Scene scene = new Scene(root, 1100, 700); // set width and height of window
 
-        File file = new File("C:/Users/forto/IdeaProjects/proj/lib/map.png");
+        File file = new File("C:/Users/forto/IdeaProjects/proj/lib/new_map.png");
         BackgroundImage myBI = new BackgroundImage(new Image(file.toURI().toString()),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
         anchor_pane_map.setBackground(new Background(myBI)); // set map as background, with no repeat and also some free space for TO DO GUI components
@@ -155,21 +155,25 @@ public class MainWindow extends Application {
         TransportLine transportLine = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule.txt");
         TransportLine transportLine2 = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule2.txt");
         TransportLine transportLine3 = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule3.txt");
+        TransportLine transportLine4 = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule4.txt");
 
         // each line is marked with different color
         transportLine.setTransportLineColor(Color.SKYBLUE);
         transportLine2.setTransportLineColor(Color.SANDYBROWN);
         transportLine3.setTransportLineColor(Color.PINK);
+        transportLine4.setTransportLineColor(Color.VIOLET);
 
         transportLine.setTransportLineSelectedColor(Color.DARKBLUE);
         transportLine2.setTransportLineSelectedColor(Color.BROWN);
         transportLine3.setTransportLineSelectedColor(Color.HOTPINK);
+        transportLine4.setTransportLineSelectedColor(Color.DARKVIOLET);
 
         ArrayList<TransportLine> all_transport_lines_list = new ArrayList<TransportLine>();
         // create list of all TransportLine objects
         all_transport_lines_list.add(transportLine);
         all_transport_lines_list.add(transportLine2);
         all_transport_lines_list.add(transportLine3);
+        all_transport_lines_list.add(transportLine4);
 
         for (Stop stop : stops_list) // highlight stop object from transport lines with their own color
         {
@@ -262,6 +266,8 @@ public class MainWindow extends Application {
             l.setOnMouseClicked(new EventHandler<MouseEvent>() { // if mouse clicked on some Street object
                 @Override
                 public void handle(MouseEvent event) {
+
+                    boolean default_color = true;
                     if (l.getStroke().equals(Color.BLACK) == false)
                     {
                         l.setStroke(Color.BLACK);
@@ -274,8 +280,14 @@ public class MainWindow extends Application {
                                 if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY())
                                 {
                                     l.setStroke(t.getTransportLineColor());
+                                    default_color = false;
                                 }
                             }
+                        }
+
+                        if (default_color == true)
+                        {
+                            l.setStroke(Color.LIGHTGREY);
                         }
                     }
                 }
@@ -374,7 +386,7 @@ public class MainWindow extends Application {
 
                     }
 
-                    Timeline affected_timeline = t.createPartLineAnimation(2, 1, new_affected_points, traffic_size, 2, affected_vehicle, line_coordinates_part);
+                    Timeline affected_timeline = t.createPartLineAnimation(2, 1, new_affected_points, traffic_size, 2, affected_vehicle, line_coordinates_part, handler);
                     affected_timeline.play();
 
                     Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, new_affected_points, traffic_size, 2, handler);
@@ -419,20 +431,23 @@ public class MainWindow extends Application {
 
             }
 
-            anchor_pane_menu.getChildren().addAll(detour_label, detour_streets_button);
+            //anchor_pane_menu.getChildren().addAll(detour_label, detour_streets_button);
 
         }
         );
 
         detour_streets_button.setOnAction(event ->
         {
-            ArrayList<Line> closed_lines = new ArrayList<Line>();
+            //ArrayList<Line> closed_lines = new ArrayList<Line>();
+            Line closed_line = null;
             ArrayList<Line> detour_lines = new ArrayList<Line>();
+            ArrayList<Integer> closed_lines_indexes = new ArrayList<Integer>();
             ArrayList<Coordinate> detour_affected_points = new ArrayList<Coordinate>();
             for (Line l : all_streets_lines) {
                 if (l.getStroke().equals(Color.RED))
                 {
-                    closed_lines.add(l);
+                    //closed_lines.add(l);
+                    closed_line = l;
                 }
                 else if (l.getStroke().equals(Color.BLACK)) {
                     detour_lines.add(l);
@@ -447,29 +462,72 @@ public class MainWindow extends Application {
                     }
                 }
             }
-
+            /*
             for (Line l : closed_lines)
             {
                 System.out.println(l);
             }
+
+             */
 
             for (Line l : detour_lines)
             {
                 System.out.println(l);
             }
 
+            //System.out.println(closed_line);
+
             for (TransportLine t : all_transport_lines_list) {
+                int closed_street_index = -1;
                 for (Street s : t.getStreetsMap()) {
-                    for (Line l : closed_lines) {
-                        if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
-                            t.getStreetsMap().remove(s);
-                        }
+                        if (s.begin().getX() == closed_line.getStartX() && s.begin().getY() == closed_line.getStartY() && s.end().getX() == closed_line.getEndX() && s.end().getY() == closed_line.getEndY()) {
+                            closed_street_index = t.getStreetsMap().indexOf(s);
+                            System.out.println(closed_street_index);
+                            //closed_lines_indexes.add(closed_street_index);
+                           // t.getStreetsMap().remove(s);
+
+                            /*
+                            for (Street detour_street : t.getStreetsMap())
+                            {
+                                for (Line detour_line : detour_lines)
+                                {
+                                    if (detour_street.begin().getX() == detour_line.getStartX() && detour_street.begin().getY() == detour_line.getStartY() && detour_street.end().getX() == detour_line.getEndX() && detour_street.end().getY() == detour_line.getEndY())
+                                    {
+                                        t.getStreetsMap().add(closed_street_index, detour_street);
+                                    }
+
+                                }
+                            }
+                            */
                     }
                 }
 
+                if (closed_street_index == -1)
+                {
+                    continue;
+                }
+
+
+                t.getStreetsMap().remove(closed_street_index);
+
+                for (Street detour_street : streets_list)
+                {
+                    for (Line detour_line : detour_lines)
+                    {
+                        if (detour_street.begin().getX() == detour_line.getStartX() && detour_street.begin().getY() == detour_line.getStartY() && detour_street.end().getX() == detour_line.getEndX() && detour_street.end().getY() == detour_line.getEndY())
+                        {
+                            System.out.println(detour_street.getId());
+                            t.getStreetsMap().add(closed_street_index, detour_street);
+                            closed_street_index++;
+                        }
+
+                    }
+                }
+
+
                 Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, detour_affected_points, 0, 0, handler);
                 timeline.play();
-                t.setLineMovement(timeline);
+                //t.setLineMovement(timeline);
             }
 
 
@@ -588,7 +646,17 @@ public class MainWindow extends Application {
                         stops_list.add(stop);
                     }
 
+                    /*
+                    if (s.getId().equals("Street22"))
+                    {
+                        System.out.println(s.getStops());
+                    }
+
+                     */
+
+
                 }
+
             }
         }
 
