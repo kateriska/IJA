@@ -216,7 +216,8 @@ public class MainWindow extends Application {
 
                             //System.out.println("This is line number " + t.getLineId() + " with route " + t.printRoute());
                             lines_info.setText("Line number: " + t.getLineId() + "\n");
-                            lines_info.setText(lines_info.getText() + "Route: " + t.printRoute() + "\n");
+                            lines_info.setText(lines_info.getText() + "Route: " + t.printRouteStops() + "\n");
+                            lines_info.setText(lines_info.getText() + "Line delay: +" + t.getDelay() + "\n");
 
                             // get actual coordinates of vehicle
                             int vehicle_actual_x = (int) Math.round(c.getCenterX());
@@ -255,6 +256,8 @@ public class MainWindow extends Application {
 
         ArrayList<Coordinate> affected_points = new ArrayList<Coordinate>();
         for (TransportLine t : all_transport_lines_list) {
+            t.setOriginalStreets(t.getStreetsMap());
+            t.setOriginalStops(t.getStopsMap());
             Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler);
             timeline.play();
             t.setLineMovement(timeline);
@@ -299,6 +302,8 @@ public class MainWindow extends Application {
             {
                 t.getLineMovement().stop();
                 t.clearLineVehicles(anchor_pane_map);
+                t.restoreOriginalStreets();
+                t.restoreOriginalStops();
 
                // t.highlightTransportLine(anchor_pane_map, streets_list, all_streets_lines);
                 Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler);
@@ -504,6 +509,7 @@ public class MainWindow extends Application {
                         if (detour_street.begin().getX() == detour_line.getStartX() && detour_street.begin().getY() == detour_line.getStartY() && detour_street.end().getX() == detour_line.getEndX() && detour_street.end().getY() == detour_line.getEndY())
                         {
                             System.out.println(detour_street.getId());
+                            //t.addDetourStreet(detour_street);
                             t.getStreetsMap().add(closed_street_index, detour_street);
                             closed_street_index++;
                         }
@@ -512,17 +518,71 @@ public class MainWindow extends Application {
                     }
                 }
 
+                t.getLineMovement().stop();
+                System.out.println(t.getLineId());
 
-                Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, detour_affected_points, 0, 0, handler);
-                timeline.play();
+                Circle source_vehicle = t.getLineVehicles().get(t.getLineVehicles().size() - 1);
+
+                int actual_x = 0;
+                int actual_y = 0;
+
+                for (Node n : anchor_pane_map.getChildren()) {
+                    if (n.equals(source_vehicle)) {
+                        Circle circle = (Circle) n;
+                        actual_x = (int) Math.round(circle.getCenterX());
+                        actual_y = (int) Math.round(circle.getCenterY());
+                        break;
+                    }
+                }
+                System.out.println(source_vehicle.getCenterX());
+                System.out.println(source_vehicle.getCenterY());
+
+                anchor_pane_map.getChildren().remove(source_vehicle);
+
+                Circle affected_vehicle = new Circle(actual_x, actual_y, 10);
+                affected_vehicle.setStroke(Color.AZURE);
+                affected_vehicle.setFill(t.getTransportLineSelectedColor());
+                affected_vehicle.setStrokeWidth(5);
+                anchor_pane_map.getChildren().addAll(affected_vehicle);
+                Coordinate actual_c = new Coordinate(actual_x, actual_y);
+
+                ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
+
+                for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
+                    Coordinate coordinates1 = t.transportLinePath().get(i);
+                    Coordinate coordinates2 = t.transportLinePath().get(i + 1);
+                    String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
+
+                    if (actual_c.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
+
+                        for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
+                            if (j >= t.transportLinePathIDs().indexOf(id_coordinates_2)) {
+                                System.out.println(t.transportLinePathIDs().get(j));
+                                line_coordinates_part.add(t.transportLinePath().get(j));
+                            }
+                        }
+
+                    }
+
+                }
+
+                Timeline affected_timeline = t.createPartLineAnimation(2, 1, affected_points, 0, 0, affected_vehicle, line_coordinates_part, handler);
+                affected_timeline.play();
+
+                Timeline new_timeline = t.createLineAnimation(anchor_pane_map, 2, 1, affected_points, 0, 0, handler);
+                t.getLineMovement().setOnFinished(e -> {
+                    new_timeline.play();
+                    anchor_pane_map.getChildren().remove(affected_vehicle);
+                });
+                t.setLineMovement(new_timeline); // set movement of specified line
+
+
+                //Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, detour_affected_points, 0, 0, handler);
+                //timeline.play();
                 //t.setLineMovement(timeline);
             }
 
-
-
         });
-
-
 
         stage.setScene(scene);
         stage.setResizable(false);
@@ -633,15 +693,6 @@ public class MainWindow extends Application {
                         s.addStop(stop, true);
                         stops_list.add(stop);
                     }
-
-                    /*
-                    if (s.getId().equals("Street22"))
-                    {
-                        System.out.println(s.getStops());
-                    }
-
-                     */
-
 
                 }
 
