@@ -20,11 +20,14 @@ public class TransportLine {
     private String line_id;
     private List<Street> streets_map = new ArrayList<Street>();
     private List<Stop> stops_map = new ArrayList<Stop>();
+    private List<Street> original_streets_map = new ArrayList<Street>();
+    private List<Stop> original_stops_map = new ArrayList<Stop>();
     ArrayList<Circle> all_line_vehicles = new ArrayList<Circle>();
     Timeline timeline = new Timeline();
     Circle vehicle = null;
     Paint line_color = null;
     Paint selected_line_color = null;
+    int delay = 0;
 
     public TransportLine()
     {
@@ -119,6 +122,17 @@ public class TransportLine {
         return res;
     }
 
+    public String printRouteStops()
+    {
+        String route_output = "-> ";
+        for (Stop s : stops_map)
+        {
+            route_output = route_output + s.getId() + " ->";
+        }
+
+        return route_output;
+    }
+
 
     public List<Stop> getStopsMap()
     {
@@ -128,6 +142,32 @@ public class TransportLine {
     public List<Street> getStreetsMap()
     {
         return streets_map;
+    }
+
+    public void setOriginalStreets(List<Street> streets_map)
+    {
+        original_streets_map = streets_map;
+    }
+
+    public void setOriginalStops(List<Stop> stops_map)
+    {
+        original_stops_map = stops_map;
+    }
+
+    public void restoreOriginalStreets()
+    {
+        this.streets_map = original_streets_map;
+
+
+        //return original_streets_map;
+    }
+
+    public void restoreOriginalStops()
+    {
+        this.stops_map = original_stops_map;
+
+
+        //return original_streets_map;
     }
 
 
@@ -269,27 +309,6 @@ public class TransportLine {
         line_coordinates_ids.add(getStopsMap().get(getStopsMap().size()-1).getId());
         return line_coordinates_ids;
     }
-
-    // set vehicle of TransportLine (circle)
-    /*
-    public void setVehicle(Circle c)
-    {
-        this.vehicle = c;
-        return;
-    }
-
-    public Circle getLineVehicle()
-    {
-        return this.vehicle;
-    }
-
-    public void clearLineVehicle()
-    {
-        vehicle = null;
-        return;
-    }
-
-     */
 
     public ArrayList<Circle> getLineVehicles()
     {
@@ -483,6 +502,8 @@ public class TransportLine {
         //timeline.play(); // play final animation
 
         anchor_pane_map.getChildren().add(vehicle);
+        //this.delay = 0;
+        this.setDelay(duration, slow_duration, affected_points);
 
         return timeline;
     }
@@ -500,6 +521,7 @@ public class TransportLine {
         // vehicle waits in stop for 1 seconds and go to another coordinate for 2 seconds (in default mode)
         int delta_time = 0;
         KeyFrame waiting_in_stop = null;
+        //int affected_stops_count = 0;
         for (int i = 0; i < line_coordinates_part.size() - 1; i++) {
             // if we go through street affected by slow traffic
             if (line_coordinates_part.get(i).isInArray(affected_points) && line_coordinates_part.get(i+1).isInArray(affected_points))
@@ -523,6 +545,7 @@ public class TransportLine {
                             new KeyValue(vehicle.centerYProperty(), line_coordinates_part.get(i).getY()));
 
                     delta_time = delta_time + stop_duration;
+                    //affected_stops_count++;
                     break;
                 }
             }
@@ -543,8 +566,25 @@ public class TransportLine {
         //timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
         this.setLineMovement(affected_timeline); // set movement of specified line
         //timeline.play(); // play final animation
+        //this.delay = (slow_duration - duration)*(affected_points.size()-1);
+        this.setDelay(duration, slow_duration, affected_points);
 
         return affected_timeline;
+    }
+
+    public int setDelay(int duration, int slow_duration, ArrayList<Coordinate> affected_points)
+    {
+        if (slow_duration != 0)
+        {
+            this.delay = (slow_duration - duration)*(affected_points.size()-1);
+        }
+
+        return this.delay;
+    }
+
+    public int getDelay()
+    {
+        return this.delay;
     }
 
 
