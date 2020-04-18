@@ -41,7 +41,6 @@ public class MainWindow extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // TASK - add sliding along map and zoom of map and other controllers of GUI
         BorderPane root = new BorderPane(); // create BorderPane as root element
         ScrollPane scroll_pane_map = new ScrollPane(); // create scroll pane for map
         VBox anchor_pane_menu = new VBox(); // create anchor pane for side menu
@@ -72,9 +71,10 @@ public class MainWindow extends Application {
         anchor_pane_menu.setSpacing(15);
         anchor_pane_menu.setAlignment(Pos.CENTER);
 
-        Button restart_timer = new Button("Restart timer");
+        Button restart_timer = new Button("Restart timer and all changes");
 
-        Label traffic_label = new Label("Mark streets affected with traffic in map");
+        Label traffic_label = new Label("MARK STREETS AFFECTED WITH TRAFFIC IN MAP");
+        traffic_label.setStyle("-fx-font-weight: bold;");
         Label traffic_choose = new Label("Choose higher size of traffic on marked streets (default 2):");
 
         TextField box_traffic = new TextField();
@@ -82,13 +82,15 @@ public class MainWindow extends Application {
         box_traffic.setMaxWidth(150);
         box_traffic.setPromptText("Set 2 for default");
 
+        Label closed_detour_label = new Label("CLOSE STREET AND MAKE A DETOUR");
+        closed_detour_label.setStyle("-fx-font-weight: bold;");
         Button traffic_button = new Button("Show movement with traffic");
         Label closed_streets_label = new Label("Mark closed street in map");
         Button closed_streets_button = new Button("Close street");
         Label detour_label = new Label("Mark detour for closed street");
         Button detour_streets_button = new Button("Save detour");
 
-        anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
+        anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_detour_label, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
 
         // zoom map
         anchor_pane_map.setOnScroll(
@@ -195,10 +197,8 @@ public class MainWindow extends Application {
             t.highlightTransportLine(anchor_pane_map, streets_list, all_streets_lines);
         }
 
-
-        //ArrayList<Circle> all_line_original_vehicles = new ArrayList<Circle>();
         /*
-        create a vehicle (circle) for every TransportLine object and move along the path of TransportLine
+        print some info about vehicle and line when clicking on vehicle
          */
         EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>() {
             @Override
@@ -232,14 +232,11 @@ public class MainWindow extends Application {
                                 String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
 
                                 if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
-                                    //System.out.println("Previous stops:");
                                     lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
                                     for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
                                         if (j < t.transportLinePathIDs().indexOf(id_coordinates_2) && t.transportLinePathIDs().get(j).contains("Stop")) {
-                                            //System.out.println(t.transportLinePathIDs().get(j));
                                             lines_info.setText(lines_info.getText() + t.transportLinePathIDs().get(j) + " -> ");
                                         } else if (t.transportLinePathIDs().get(j).contains("Stop")) {
-                                                //System.out.println("Next stop is " + t.transportLinePathIDs().get(j));
                                                 lines_info.setText(lines_info.getText() + "\n" + "Next stop: " + t.transportLinePathIDs().get(j) + "\n");
                                                 break;
                                             }
@@ -254,16 +251,15 @@ public class MainWindow extends Application {
             }
         };
 
+        // create original animations of TransportLine
         ArrayList<Coordinate> affected_points = new ArrayList<Coordinate>();
         for (TransportLine t : all_transport_lines_list) {
-            t.setOriginalStreets(t.getStreetsMap());
-            t.setOriginalStops(t.getStopsMap());
             Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler);
             timeline.play();
             t.setLineMovement(timeline);
         }
 
-
+        // change color of clicked lines
         for (Line l : all_streets_lines)
         {
             l.setOnMouseClicked(new EventHandler<MouseEvent>() { // if mouse clicked on some Street object
@@ -297,21 +293,39 @@ public class MainWindow extends Application {
             });
         }
 
+        // clicking on Restart timer button
         restart_timer.setOnAction(event -> {
             for (TransportLine t : all_transport_lines_list)
             {
                 t.getLineMovement().stop();
                 t.clearLineVehicles(anchor_pane_map);
-                t.restoreOriginalStreets();
-                t.restoreOriginalStops();
+                ArrayList<Integer> detour_indexes = new ArrayList<Integer>();
 
-               // t.highlightTransportLine(anchor_pane_map, streets_list, all_streets_lines);
+                if (t.getDetourStreets().size() > 0) { // restart original path when we closed street and did detour previously
+                    for (Street s : t.getStreetsMap()) {
+                        if (t.getDetourStreets().contains(s)) {
+                            detour_indexes.add(t.getStreetsMap().indexOf(s));
+                        }
+                    }
+
+                    for (Integer i : detour_indexes) {
+                        System.out.println(i);
+                        t.getStreetsMap().remove(i.intValue());
+                    }
+
+                    int closed_street_index = detour_indexes.get(0).intValue();
+
+                    t.getStreetsMap().add(closed_street_index, t.getClosedStreet());
+                    t.setClosedStreet(null);
+                    t.clearDetourStreet();
+                }
                 Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler);
                 timeline.play();
                 t.setLineMovement(timeline);
             }
         });
 
+        // clicking on setTraffic button - change traffic on marked street and get traffic size from textbox
         traffic_button.setOnAction(event -> {
             try {
                 int traffic_size = Integer.parseUnsignedInt(box_traffic.getText());
@@ -323,7 +337,7 @@ public class MainWindow extends Application {
                     }
                 }
 
-                for (TransportLine t : all_transport_lines_list) {
+                for (TransportLine t : all_transport_lines_list) { // get affected points from slowing the traffic
                     ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
 
                     for (Street s : t.getStreetsMap()) {
@@ -343,7 +357,6 @@ public class MainWindow extends Application {
 
                     if (new_affected_points.size() > 0) {
                         t.getLineMovement().stop();
-                        System.out.println(t.getLineId());
 
                         Circle source_vehicle = t.getLineVehicles().get(t.getLineVehicles().size() - 1);
 
@@ -358,8 +371,6 @@ public class MainWindow extends Application {
                                 break;
                             }
                         }
-                        System.out.println(source_vehicle.getCenterX());
-                        System.out.println(source_vehicle.getCenterY());
 
                         anchor_pane_map.getChildren().remove(source_vehicle);
 
@@ -381,14 +392,13 @@ public class MainWindow extends Application {
 
                                 for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
                                     if (j >= t.transportLinePathIDs().indexOf(id_coordinates_2)) {
-                                        System.out.println(t.transportLinePathIDs().get(j));
                                         line_coordinates_part.add(t.transportLinePath().get(j));
                                     }
                                 }
-
                             }
-
                         }
+
+                        // change params for already travelling vehicle
 
                         Timeline affected_timeline = t.createPartLineAnimation(2, 1, new_affected_points, traffic_size, 2, affected_vehicle, line_coordinates_part, handler);
                         affected_timeline.play();
@@ -406,6 +416,7 @@ public class MainWindow extends Application {
             }
             catch (Exception e)
             {
+                // exception when we didnt use unsigned value for traffic size text box
                 Alert alert = new Alert(AlertType.WARNING);
                 alert.setTitle("Bad parameters");
                 alert.setHeaderText("Use unsigned int as values");
@@ -414,6 +425,7 @@ public class MainWindow extends Application {
         }
        );
 
+        // activation of closed street button -> only set color for marked closed street with red color
         closed_streets_button.setOnAction(event -> {
             for (Line l : all_streets_lines) {
                 if (l.getStroke().equals(Color.BLACK))
@@ -432,26 +444,20 @@ public class MainWindow extends Application {
                         }
                     }
                 }
-
-
             }
-
-            //anchor_pane_menu.getChildren().addAll(detour_label, detour_streets_button);
-
         }
         );
 
+        // action when detour button is clicked
+        // add closed street and detour streets, affect already travelling vehicles
         detour_streets_button.setOnAction(event ->
         {
-            //ArrayList<Line> closed_lines = new ArrayList<Line>();
             Line closed_line = null;
             ArrayList<Line> detour_lines = new ArrayList<Line>();
             ArrayList<Integer> closed_lines_indexes = new ArrayList<Integer>();
-            ArrayList<Coordinate> detour_affected_points = new ArrayList<Coordinate>();
             for (Line l : all_streets_lines) {
                 if (l.getStroke().equals(Color.RED))
                 {
-                    //closed_lines.add(l);
                     closed_line = l;
                 }
                 else if (l.getStroke().equals(Color.BLACK)) {
@@ -467,27 +473,13 @@ public class MainWindow extends Application {
                     }
                 }
             }
-            /*
-            for (Line l : closed_lines)
-            {
-                System.out.println(l);
-            }
-
-             */
-
-            for (Line l : detour_lines)
-            {
-                System.out.println(l);
-            }
-
-            //System.out.println(closed_line);
 
             for (TransportLine t : all_transport_lines_list) {
                 int closed_street_index = -1;
                 for (Street s : t.getStreetsMap()) {
                         if (s.begin().getX() == closed_line.getStartX() && s.begin().getY() == closed_line.getStartY() && s.end().getX() == closed_line.getEndX() && s.end().getY() == closed_line.getEndY()) {
+                            t.setClosedStreet(s);
                             closed_street_index = t.getStreetsMap().indexOf(s);
-                            System.out.println(closed_street_index);
                             closed_lines_indexes.add(closed_street_index);
                     }
                 }
@@ -498,9 +490,7 @@ public class MainWindow extends Application {
                 }
 
 
-                t.getStreetsMap().remove(closed_street_index);
-
-                //Street last_nonaffected_s = t.getStreetsMap().get(closed_street_index - 1);
+                t.getStreetsMap().remove(closed_street_index); // remove closed street from streets map of TransportLine
 
                 for (Street detour_street : streets_list)
                 {
@@ -508,18 +498,14 @@ public class MainWindow extends Application {
                     {
                         if (detour_street.begin().getX() == detour_line.getStartX() && detour_street.begin().getY() == detour_line.getStartY() && detour_street.end().getX() == detour_line.getEndX() && detour_street.end().getY() == detour_line.getEndY())
                         {
-                            System.out.println(detour_street.getId());
-                            //t.addDetourStreet(detour_street);
+                            t.addDetourStreet(detour_street);
                             t.getStreetsMap().add(closed_street_index, detour_street);
                             closed_street_index++;
                         }
-
-
                     }
                 }
 
                 t.getLineMovement().stop();
-                System.out.println(t.getLineId());
 
                 Circle source_vehicle = t.getLineVehicles().get(t.getLineVehicles().size() - 1);
 
@@ -534,8 +520,6 @@ public class MainWindow extends Application {
                         break;
                     }
                 }
-                System.out.println(source_vehicle.getCenterX());
-                System.out.println(source_vehicle.getCenterY());
 
                 anchor_pane_map.getChildren().remove(source_vehicle);
 
@@ -557,7 +541,6 @@ public class MainWindow extends Application {
 
                         for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
                             if (j >= t.transportLinePathIDs().indexOf(id_coordinates_2)) {
-                                System.out.println(t.transportLinePathIDs().get(j));
                                 line_coordinates_part.add(t.transportLinePath().get(j));
                             }
                         }
@@ -565,7 +548,7 @@ public class MainWindow extends Application {
                     }
 
                 }
-
+                // change path for already travelling vehicles and force detour for them
                 Timeline affected_timeline = t.createPartLineAnimation(2, 1, affected_points, 0, 0, affected_vehicle, line_coordinates_part, handler);
                 affected_timeline.play();
 
@@ -575,11 +558,6 @@ public class MainWindow extends Application {
                     anchor_pane_map.getChildren().remove(affected_vehicle);
                 });
                 t.setLineMovement(new_timeline); // set movement of specified line
-
-
-                //Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, detour_affected_points, 0, 0, handler);
-                //timeline.play();
-                //t.setLineMovement(timeline);
             }
 
         });
