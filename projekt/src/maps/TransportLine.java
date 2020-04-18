@@ -433,7 +433,7 @@ public class TransportLine {
     // affected_points - array of points affected with slowing traffic
     // slow_duration - duration between neighbour coordinates in street affected with slow traffic
     // slow_stop_duration - duration of waiting in stop in street affected with slow traffic
-    public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, EventHandler<MouseEvent> handler)
+    public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, EventHandler<MouseEvent> handler, boolean detour_delay)
     {
         // coordinates of path for vehicle on transportline
         ArrayList<Coordinate> line_coordinates = this.transportLinePath();
@@ -503,13 +503,21 @@ public class TransportLine {
 
         anchor_pane_map.getChildren().add(vehicle);
         //this.delay = 0;
-        this.setDelay(duration, slow_duration, affected_points);
+        if (detour_delay == false)
+        {
+            this.setDelay(duration, slow_duration, affected_points.size());
+        }
+        else
+        {
+            this.delay = this.detour_streets.size() * duration - duration;
+        }
+
 
         return timeline;
     }
 
     // only animated part of trasnportline
-    public Timeline createPartLineAnimation(int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, Circle vehicle, ArrayList<Coordinate> line_coordinates_part, EventHandler<MouseEvent> handler)
+    public Timeline createPartLineAnimation(int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, Circle vehicle, ArrayList<Coordinate> line_coordinates_part, EventHandler<MouseEvent> handler, boolean detour_delay)
     {
         Timeline affected_timeline = new Timeline();
         int original_duration = duration;
@@ -568,20 +576,33 @@ public class TransportLine {
         this.setLineMovement(affected_timeline); // set movement of specified line
         //timeline.play(); // play final animation
         //this.delay = (slow_duration - duration)*(affected_points.size()-1);
-        this.setDelay(duration, slow_duration, affected_points);
+        if (detour_delay == false)
+        {
+            this.setDelay(duration, slow_duration, affected_points.size());
+        }
+        else
+        {
+            this.delay = this.detour_streets.size() * duration - duration;
+        }
+
 
         return affected_timeline;
     }
 
-    public int setDelay(int duration, int slow_duration, ArrayList<Coordinate> affected_points)
+    public int setDelay(int duration, int slow_duration, int affected_points_size)
     {
         if (slow_duration != 0)
         {
-            this.delay = (slow_duration - duration)*(affected_points.size()-1);
+            this.delay = (slow_duration - duration)*(affected_points_size-1);
+        }
+        else
+        {
+            this.delay = 0;
         }
 
         return this.delay;
     }
+
 
     public int getDelay()
     {
