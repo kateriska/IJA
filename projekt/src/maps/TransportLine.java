@@ -24,10 +24,11 @@ public class TransportLine {
     private List<Stop> original_stops_map = new ArrayList<Stop>();
     ArrayList<Circle> all_line_vehicles = new ArrayList<Circle>();
     Timeline timeline = new Timeline();
-    Circle vehicle = null;
     Paint line_color = null;
     Paint selected_line_color = null;
     int delay = 0;
+    Street closed_street = null;
+    ArrayList<Street> detour_streets = new ArrayList<Street>();
 
     public TransportLine()
     {
@@ -144,30 +145,29 @@ public class TransportLine {
         return streets_map;
     }
 
-    public void setOriginalStreets(List<Street> streets_map)
+    public void setClosedStreet(Street s)
     {
-        original_streets_map = streets_map;
+        closed_street = s;
     }
 
-    public void setOriginalStops(List<Stop> stops_map)
+    public Street getClosedStreet()
     {
-        original_stops_map = stops_map;
+        return closed_street;
     }
 
-    public void restoreOriginalStreets()
+    public void addDetourStreet( Street s)
     {
-        this.streets_map = original_streets_map;
-
-
-        //return original_streets_map;
+        detour_streets.add(s);
     }
 
-    public void restoreOriginalStops()
+    public ArrayList<Street> getDetourStreets()
     {
-        this.stops_map = original_stops_map;
+        return detour_streets;
+    }
 
-
-        //return original_streets_map;
+    public void clearDetourStreet()
+    {
+        detour_streets = null;
     }
 
 
@@ -521,6 +521,7 @@ public class TransportLine {
         // vehicle waits in stop for 1 seconds and go to another coordinate for 2 seconds (in default mode)
         int delta_time = 0;
         KeyFrame waiting_in_stop = null;
+
         //int affected_stops_count = 0;
         for (int i = 0; i < line_coordinates_part.size() - 1; i++) {
             // if we go through street affected by slow traffic
@@ -545,7 +546,7 @@ public class TransportLine {
                             new KeyValue(vehicle.centerYProperty(), line_coordinates_part.get(i).getY()));
 
                     delta_time = delta_time + stop_duration;
-                    //affected_stops_count++;
+
                     break;
                 }
             }
