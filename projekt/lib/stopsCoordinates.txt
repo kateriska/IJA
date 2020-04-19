@@ -10,7 +10,7 @@ Stop9 - [258,31]; Street19
 Stop10 - [541,531]; Street15
 Stop11 - [190,240]; Street2
 Stop12 - [659,106]; Street13
-Stop13 - [192,132]; Street1
+Stop13 - [192,132]; Street23
 Stop14 - [476,338]; Street14
 Stop15 - [591,31]; Street12
 Stop16 - [401,226]; Street11
@@ -19,7 +19,7 @@ Stop18 - [427,32]; Street19
 Stop19 - [146,191]; Street3
 Stop20 - [59,116]; Street22
 Stop21 - [132,30]; Street21
-Stop22 - [351,114]; Street23
+Stop22 - [351,114]; Street1
 Stop23 - [592,280]; Street24
 Stop24 - [472,273]; Street25
 Stop25 - [58,579]; Street26
