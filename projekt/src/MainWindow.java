@@ -88,6 +88,8 @@ public class MainWindow extends Application {
         Button closed_streets_button = new Button("Close street");
         Label detour_label = new Label("Mark detour for closed street");
         Button detour_streets_button = new Button("Save detour");
+        //Label reopen_streets_label = new Label("Delete detour and re-open particular closed street");
+        //Button reopen_streets_button = new Button("Re-open closed street");
 
         anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_detour_label, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
 
@@ -256,24 +258,9 @@ public class MainWindow extends Application {
             {
                 t.getLineMovement().stop(); // stop all moving vehicles
                 t.clearLineVehicles(anchor_pane_map); // clear all vehicles on map
-                int detour_index = 0;
 
                 if (t.getDetourStreets().size() > 0) { // restart original path when we closed street and did detour previously
-                    for (Street s : t.getStreetsMap()) {
-                        if (t.getDetourStreets().contains(s)) {
-                            detour_index = (t.getStreetsMap().indexOf(s));
-                            break;
-                        }
-                    }
-
-                    for (int i = 0; i < t.getDetourStreets().size(); i++)
-                    {
-                        t.getStreetsMap().remove(detour_index);
-                    }
-
-                    t.getStreetsMap().add(detour_index, t.getClosedStreet());
-                    t.setClosedStreet(null);
-                    t.clearDetourStreet();
+                    t.reopenClosedStreet();
                 }
                 Timeline timeline = t.createLineAnimation(anchor_pane_map, 2,1, affected_points, 0, 0, handler, false);
                 t.setDelay(2,0,0);
@@ -341,8 +328,6 @@ public class MainWindow extends Application {
                         t.setLineMovement(new_timeline); // set movement of specified line
                     }
                 }
-
-
             }
             catch (Exception e)
             {
@@ -445,10 +430,12 @@ public class MainWindow extends Application {
                 {
                     if (stop.getStreet().equals(t.getClosedStreet()))
                     {
+                       t.setClosedStop(stop);
                        closed_stop_index = t.getStopsMap().indexOf(stop);
                     }
                 }
 
+                t.setClosedStopIndex(closed_stop_index);
                 t.getStopsMap().remove(closed_stop_index);
 
                 for (Street detour_street : streets_list)
