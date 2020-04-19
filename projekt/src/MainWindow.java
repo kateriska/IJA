@@ -202,43 +202,7 @@ public class MainWindow extends Application {
                 if (e.getSource() instanceof Circle) {
                     Circle c = (Circle) e.getSource(); // get circle on which was clicked
                     for (TransportLine t : all_transport_lines_list) {
-                        if (t.getLineVehicles().contains(c)) {
-                            if (c.getFill() == t.getTransportLineColor()) {
-                                c.setFill(t.getTransportLineSelectedColor());
-                            } else {
-                                c.setFill(t.getTransportLineColor());
-                            }
-
-                            lines_info.setText("Line number: " + t.getLineId() + "\n");
-                            lines_info.setText(lines_info.getText() + "Route: " + t.printRouteStops() + "\n");
-                            lines_info.setText(lines_info.getText() + "Line delay: +" + t.getDelay() + "\n");
-
-                            // get actual coordinates of vehicle
-                            int vehicle_actual_x = (int) Math.round(c.getCenterX());
-                            int vehicle_actual_y = (int) Math.round(c.getCenterY());
-
-                            Coordinate vehicle_actual_coordinates = new Coordinate(vehicle_actual_x, vehicle_actual_y);
-
-                            // print next stop and previous stops of line
-                            for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
-                                Coordinate coordinates1 = t.transportLinePath().get(i);
-                                Coordinate coordinates2 = t.transportLinePath().get(i + 1);
-                                String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
-
-                                if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
-                                    lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
-                                    for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
-                                        if (j < t.transportLinePathIDs().indexOf(id_coordinates_2) && t.transportLinePathIDs().get(j).contains("Stop")) {
-                                            lines_info.setText(lines_info.getText() + t.transportLinePathIDs().get(j) + " -> ");
-                                        } else if (t.transportLinePathIDs().get(j).contains("Stop")) {
-                                                lines_info.setText(lines_info.getText() + "\n" + "Next stop: " + t.transportLinePathIDs().get(j) + "\n");
-                                                break;
-                                            }
-                                        }
-                                    break;
-                                }
-                            }
-                        }
+                        t.printInfoVehicleClick(c, lines_info);
 
                     }
                 }
@@ -332,21 +296,7 @@ public class MainWindow extends Application {
 
                 for (TransportLine t : all_transport_lines_list) { // get affected points from slowing the traffic
                     ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
-
-                    for (Street s : t.getStreetsMap()) {
-                        for (Line l : affected_lines) {
-                            if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
-                                System.out.println("Street is slower now from line");
-
-                                for (int i = 0; i < t.transportLinePath().size(); i++) {
-                                    if (t.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (t.transportLinePath().get(i).getX() == s.begin().getX() && t.transportLinePath().get(i).getY() == s.begin().getY()) || (t.transportLinePath().get(i).getX() == s.end().getX() && t.transportLinePath().get(i).getY() == s.end().getY())) {
-                                        System.out.println("Affected points: " + t.transportLinePath().get(i).getX() + ", " + t.transportLinePath().get(i).getY());
-                                        new_affected_points.add(t.transportLinePath().get(i));
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    new_affected_points = t.getAffectedPointsTraffic(affected_lines);
 
                     if (new_affected_points.size() > 0) {
                         t.getLineMovement().stop();
@@ -376,19 +326,7 @@ public class MainWindow extends Application {
 
                         ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
 
-                        for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
-                            Coordinate coordinates1 = t.transportLinePath().get(i);
-                            Coordinate coordinates2 = t.transportLinePath().get(i + 1);
-                            String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
-
-                            if (actual_c.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
-                                for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
-                                    if (j >= t.transportLinePathIDs().indexOf(id_coordinates_2)) {
-                                        line_coordinates_part.add(t.transportLinePath().get(j));
-                                    }
-                                }
-                            }
-                        }
+                        line_coordinates_part = t.affectTravellingPath(actual_c);
 
                         // change params for already travelling vehicle and made them affected with traffic
 
@@ -477,7 +415,7 @@ public class MainWindow extends Application {
                 }
             }
 
-            if (closed_line == null) // alet when no street was not closed
+            if (closed_line == null) // alert when no street was not closed
             {
                 Alert alert = new Alert(AlertType.WARNING);
                 alert.setTitle("No close street");
@@ -502,6 +440,16 @@ public class MainWindow extends Application {
                 }
 
                 t.getStreetsMap().remove(closed_street_index); // remove closed street from streets map of TransportLine
+                int closed_stop_index = 0;
+                for (Stop stop : t.getStopsMap())
+                {
+                    if (stop.getStreet().equals(t.getClosedStreet()))
+                    {
+                       closed_stop_index = t.getStopsMap().indexOf(stop);
+                    }
+                }
+
+                t.getStopsMap().remove(closed_stop_index);
 
                 for (Street detour_street : streets_list)
                 {
@@ -544,22 +492,7 @@ public class MainWindow extends Application {
 
                 ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
 
-                for (int i = 0; i < t.transportLinePath().size() - 1; i++) {
-                    Coordinate coordinates1 = t.transportLinePath().get(i);
-                    Coordinate coordinates2 = t.transportLinePath().get(i + 1);
-                    String id_coordinates_2 = t.transportLinePathIDs().get(i + 1);
-
-                    if (actual_c.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
-
-                        for (int j = 0; j < t.transportLinePathIDs().size(); j++) {
-                            if (j >= t.transportLinePathIDs().indexOf(id_coordinates_2)) {
-                                line_coordinates_part.add(t.transportLinePath().get(j));
-                            }
-                        }
-
-                    }
-
-                }
+                line_coordinates_part = t.affectTravellingPath(actual_c);
                 // change path for already travelling vehicles and force detour for them
                 Timeline affected_timeline = t.createPartLineAnimation(2, 1, affected_points, 0, 0, affected_vehicle, line_coordinates_part, handler, true);
                 affected_timeline.play();
