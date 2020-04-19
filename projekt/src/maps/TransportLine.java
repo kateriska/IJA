@@ -30,6 +30,8 @@ public class TransportLine {
     int delay = 0;
     Street closed_street = null;
     ArrayList<Street> detour_streets = new ArrayList<Street>();
+    int closed_stop_index = 0;
+    Stop closed_stop = null;
 
     public TransportLine()
     {
@@ -169,6 +171,26 @@ public class TransportLine {
     public void clearDetourStreet()
     {
         detour_streets = null;
+    }
+
+    public void setClosedStopIndex(int i)
+    {
+        closed_stop_index = i;
+    }
+
+    public int getClosedStopIndex()
+    {
+        return closed_stop_index;
+    }
+
+    public void setClosedStop(Stop stop)
+    {
+        closed_stop = stop;
+    }
+
+    public Stop getClosedStop()
+    {
+        return closed_stop;
     }
 
 
@@ -499,6 +521,7 @@ public class TransportLine {
         }
 
         timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
+        //timeline.setDelay(Duration.seconds(3));
         //this.setLineMovement(timeline); // set movement of specified line
         //timeline.play(); // play final animation
 
@@ -692,6 +715,26 @@ public class TransportLine {
         }
 
         return new_affected_points;
+    }
+
+    public void reopenClosedStreet()
+    {
+        int detour_index = 0;
+        for (Street s : this.getStreetsMap()) {
+            if (this.getDetourStreets().contains(s)) {
+                detour_index = (this.getStreetsMap().indexOf(s));
+                break;
+            }
+        }
+
+        for (int i = 0; i < this.getDetourStreets().size(); i++)
+        {
+            this.getStreetsMap().remove(detour_index);
+        }
+
+        this.getStreetsMap().add(detour_index, this.getClosedStreet());
+        this.getStopsMap().add(this.getClosedStopIndex(), this.getClosedStop());
+        this.clearDetourStreet();
     }
 
 
