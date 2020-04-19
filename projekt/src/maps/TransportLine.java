@@ -7,7 +7,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +15,7 @@ import javafx.scene.paint.Paint;
 import javafx.animation.Timeline;
 import javafx.scene.shape.Line;
 import javafx.util.Duration;
+import javafx.scene.text.Text;
 
 public class TransportLine {
     private String line_id;
@@ -607,6 +608,90 @@ public class TransportLine {
     public int getDelay()
     {
         return this.delay;
+    }
+
+    public ArrayList<Coordinate> affectTravellingPath(Coordinate actual_c)
+    {
+        ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
+
+        for (int i = 0; i < this.transportLinePath().size() - 1; i++) {
+            Coordinate coordinates1 = this.transportLinePath().get(i);
+            Coordinate coordinates2 = this.transportLinePath().get(i + 1);
+            String id_coordinates_2 = this.transportLinePathIDs().get(i + 1);
+
+            if (actual_c.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
+                for (int j = 0; j < this.transportLinePathIDs().size(); j++) {
+                    if (j >= this.transportLinePathIDs().indexOf(id_coordinates_2)) {
+                        line_coordinates_part.add(this.transportLinePath().get(j));
+                    }
+                }
+            }
+        }
+
+        return line_coordinates_part;
+    }
+
+    public void printInfoVehicleClick(Circle c, Text lines_info)
+    {
+        if (this.getLineVehicles().contains(c)) {
+            if (c.getFill() == this.getTransportLineColor()) {
+                c.setFill(this.getTransportLineSelectedColor());
+            } else {
+                c.setFill(this.getTransportLineColor());
+            }
+
+            lines_info.setText("Line number: " + this.getLineId() + "\n");
+            lines_info.setText(lines_info.getText() + "Route: " + this.printRouteStops() + "\n");
+            lines_info.setText(lines_info.getText() + "Line delay: +" + this.getDelay() + "\n");
+
+            // get actual coordinates of vehicle
+            int vehicle_actual_x = (int) Math.round(c.getCenterX());
+            int vehicle_actual_y = (int) Math.round(c.getCenterY());
+
+            Coordinate vehicle_actual_coordinates = new Coordinate(vehicle_actual_x, vehicle_actual_y);
+
+            // print next stop and previous stops of line
+            for (int i = 0; i < this.transportLinePath().size() - 1; i++) {
+                Coordinate coordinates1 = this.transportLinePath().get(i);
+                Coordinate coordinates2 = this.transportLinePath().get(i + 1);
+                String id_coordinates_2 = this.transportLinePathIDs().get(i + 1);
+
+                if (vehicle_actual_coordinates.isBetweenTwoCoordinates(coordinates1, coordinates2) == true) {
+                    lines_info.setText(lines_info.getText() + "Previous stops:" + "\n");
+                    for (int j = 0; j < this.transportLinePathIDs().size(); j++) {
+                        if (j < this.transportLinePathIDs().indexOf(id_coordinates_2) && this.transportLinePathIDs().get(j).contains("Stop")) {
+                            lines_info.setText(lines_info.getText() + this.transportLinePathIDs().get(j) + " -> ");
+                        } else if (this.transportLinePathIDs().get(j).contains("Stop")) {
+                            lines_info.setText(lines_info.getText() + "\n" + "Next stop: " + this.transportLinePathIDs().get(j) + "\n");
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    public ArrayList<Coordinate> getAffectedPointsTraffic(ArrayList<Line> affected_lines)
+    {
+        ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
+
+        for (Street s : this.getStreetsMap()) {
+            for (Line l : affected_lines) {
+                if (s.begin().getX() == l.getStartX() && s.begin().getY() == l.getStartY() && s.end().getX() == l.getEndX() && s.end().getY() == l.getEndY()) {
+                    System.out.println("Street is slower now from line");
+
+                    for (int i = 0; i < this.transportLinePath().size(); i++) {
+                        if (this.transportLinePath().get(i).isBetweenTwoCoordinates(s.begin(), s.end()) || (this.transportLinePath().get(i).getX() == s.begin().getX() && this.transportLinePath().get(i).getY() == s.begin().getY()) || (this.transportLinePath().get(i).getX() == s.end().getX() && this.transportLinePath().get(i).getY() == s.end().getY())) {
+                            System.out.println("Affected points: " + this.transportLinePath().get(i).getX() + ", " + this.transportLinePath().get(i).getY());
+                            new_affected_points.add(this.transportLinePath().get(i));
+                        }
+                    }
+                }
+            }
+        }
+
+        return new_affected_points;
     }
 
 
