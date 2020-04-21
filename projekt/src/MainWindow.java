@@ -32,6 +32,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import java.awt.MouseInfo;
 import javafx.scene.Node;
+import javafx.scene.text.Font;
 
 public class MainWindow extends Application {
 
@@ -60,18 +61,20 @@ public class MainWindow extends Application {
 
         AnchorPane anchor_pane_map = new AnchorPane(); // set anchor pane in scroll_pane_map
         scroll_pane_map.setContent(anchor_pane_map);
-        anchor_pane_map.setPrefWidth(500);
-        anchor_pane_map.setPrefHeight(500);
+        anchor_pane_map.setPrefWidth(600);
+        anchor_pane_map.setPrefHeight(600);
         scroll_pane_map.setPannable(true); // pannable map
-        scroll_pane_map.setPrefViewportWidth(500);
-        scroll_pane_map.setPrefViewportHeight(500);
+        scroll_pane_map.setPrefViewportWidth(600);
+        scroll_pane_map.setPrefViewportHeight(600);
 
-        anchor_pane_menu.setPrefWidth(600);
+        anchor_pane_menu.setPrefWidth(450);
         anchor_pane_menu.setPrefHeight(300);
         anchor_pane_menu.setSpacing(15);
         anchor_pane_menu.setAlignment(Pos.CENTER);
 
-        Button restart_timer = new Button("Restart timer and all changes");
+        Label header_label = new Label("LITTLE TOWN PUBLIC TRANSPORT SIMULATOR");
+        header_label.setFont(new Font("Verdana", 16));
+        Button restart_timer = new Button("Restart timer and discard all changes");
         Label traffic_label = new Label("MARK STREETS AFFECTED WITH TRAFFIC IN MAP");
         traffic_label.setStyle("-fx-font-weight: bold;");
         Label traffic_choose = new Label("Choose higher size of traffic on marked streets (default 2):");
@@ -91,7 +94,7 @@ public class MainWindow extends Application {
         //Label reopen_streets_label = new Label("Delete detour and re-open particular closed street");
         //Button reopen_streets_button = new Button("Re-open closed street");
 
-        anchor_pane_menu.getChildren().addAll(restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_detour_label, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
+        anchor_pane_menu.getChildren().addAll(header_label, restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_detour_label, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
 
         // zoom map
         anchor_pane_map.setOnScroll(
@@ -110,7 +113,7 @@ public class MainWindow extends Application {
                     }
                 });
 
-        Scene scene = new Scene(root, 1100, 700); // set width and height of window
+        Scene scene = new Scene(root, 1050, 700); // set width and height of window
 
         File file = new File("C:/Users/forto/IdeaProjects/proj/lib/new_map.png");
         BackgroundImage myBI = new BackgroundImage(new Image(file.toURI().toString()),
@@ -164,7 +167,7 @@ public class MainWindow extends Application {
         transportLine4.setTransportLineColor(Color.VIOLET);
 
         transportLine.setTransportLineSelectedColor(Color.DARKBLUE);
-        transportLine2.setTransportLineSelectedColor(Color.BROWN);
+        transportLine2.setTransportLineSelectedColor(Color.DARKORANGE);
         transportLine3.setTransportLineSelectedColor(Color.HOTPINK);
         transportLine4.setTransportLineSelectedColor(Color.DARKVIOLET);
 
