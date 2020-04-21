@@ -185,7 +185,7 @@ public class TransportLine {
 
     /**
      * Set closed street for route
-     * @param s
+     * @param s - Street object
      */
     public void setClosedStreet(Street s)
     {
@@ -194,7 +194,7 @@ public class TransportLine {
 
     /**
      * Get closed street from route
-     * @return
+     * @return closed_street - particular closed street from route
      */
     public Street getClosedStreet()
     {
@@ -203,7 +203,7 @@ public class TransportLine {
 
     /**
      * Add streets for detour
-     * @param s
+     * @param s - Street object
      */
     public void addDetourStreet( Street s)
     {
@@ -212,7 +212,7 @@ public class TransportLine {
 
     /**
      * Return streets for detour
-     * @return
+     * @return detour_streets - list of streets used as detour for closed street
      */
     public ArrayList<Street> getDetourStreets()
     {
@@ -229,7 +229,7 @@ public class TransportLine {
 
     /**
      * Set index of closed street
-     * @param i
+     * @param i - Index of closed stop among all stops of line
      */
     public void setClosedStopIndex(int i)
     {
@@ -238,7 +238,7 @@ public class TransportLine {
 
     /**
      * Get index of closed street
-     * @return
+     * @return closed_stop_index - index of closed street
      */
     public int getClosedStopIndex()
     {
@@ -247,7 +247,7 @@ public class TransportLine {
 
     /**
      * Set closed stop on closed street
-     * @param stop
+     * @param stop - Stop object
      */
     public void setClosedStop(Stop stop)
     {
@@ -256,7 +256,7 @@ public class TransportLine {
 
     /**
      * Get closed stop on closed street
-     * @return
+     * @return closed_stop - particular closed Stop object
      */
     public Stop getClosedStop()
     {
@@ -267,7 +267,7 @@ public class TransportLine {
     /**
      * Get arraylist of all coordinates of specified path, they are sorted in the way how vehicle is travelling through them, the right order is important
      *
-     * @return
+     * @return line_coordinates - list of all important coordinates of path (coordinates of all stops and begin, edge, (middle) coordinates of Streets
      */
     public ArrayList<Coordinate> transportLinePath()
     {
@@ -336,7 +336,7 @@ public class TransportLine {
 
     /**
      * Get arraylist of IDs of Coordinates in the order which is specified path of bus, the correct order is important
-     * @return
+     * @return line_coordinates_ids - list of IDs of all important coordinates - id of stops of route, id of Street coordinates with one of their Street names
      */
     public ArrayList<String> transportLinePathIDs()
     {
@@ -403,7 +403,7 @@ public class TransportLine {
 
     /**
      * Get vehicles of line
-     * @return
+     * @return all_line_vehicles - list of all vehicles of line
      */
     public ArrayList<Circle> getLineVehicles()
     {
@@ -412,7 +412,7 @@ public class TransportLine {
 
     /**
      * Add vehicle to line
-     * @param c
+     * @param c - Circle object - symbol of vehicle
      */
     public void addLineVehicles(Circle c)
     {
@@ -422,7 +422,7 @@ public class TransportLine {
 
     /**
      * Clear all line vehicles
-     * @param anchor_pane_map
+     * @param anchor_pane_map - AnchorPane object as GUI component on which items are drawn
      */
     public void clearLineVehicles(AnchorPane anchor_pane_map)
     {
@@ -434,7 +434,7 @@ public class TransportLine {
 
     /**
      * Set the animation of line movement for TransportLine
-     * @param t
+     * @param t - Timeline object as animation of particular line and their vehicle path
      */
     public void setLineMovement(Timeline t)
     {
@@ -443,7 +443,7 @@ public class TransportLine {
 
     /**
      * Get the animation of line movement for TransportLine
-     * @return
+     * @return timeline - Current properties and path of moving vehicle in line
      */
     public Timeline getLineMovement()
     {
@@ -452,7 +452,7 @@ public class TransportLine {
 
     /**
      * Set color of TransportLine - for their stops, vehicles and streets
-     * @param p
+     * @param p - Paint object which represents color
      */
     public void setTransportLineColor(Paint p)
     {
@@ -461,7 +461,7 @@ public class TransportLine {
 
     /**
      * Get color of TransportLine - for their stops, vehicles and streets
-     * @return
+     * @return line_color - color of particular line
      */
     public Paint getTransportLineColor()
     {
@@ -470,7 +470,7 @@ public class TransportLine {
 
     /**
      * Set color for highlighting of TransportLine - for their stops, vehicles and streets
-     * @param p
+     * @param p - Paint object which represents color
      */
     public void setTransportLineSelectedColor(Paint p)
     {
@@ -479,7 +479,7 @@ public class TransportLine {
 
     /**
      * Get color for highlighting of TransportLine - for their stops, vehicles and streets
-     * @return
+     * @return selected_line_color - highlighting color for particular line
      */
     public Paint getTransportLineSelectedColor()
     {
@@ -491,9 +491,9 @@ public class TransportLine {
      * it means highlight all street from beginning to end when the line is travel through all street
      * and highlight only part from stop to end coordinate of street for beginning and end street, because
      * the line is not travel through all street but only part of it
-     * @param anchor_pane_map
-     * @param streets_list
-     * @param all_streets_lines
+     * @param anchor_pane_map - AnchorPane object as GUI component on which items are drawn
+     * @param streets_list - List of all streets of line
+     * @param all_streets_lines - List of all Line objects which represents Streets from this line
      */
     public void highlightTransportLine(AnchorPane anchor_pane_map, ArrayList<Street> streets_list, ArrayList<Line> all_streets_lines)
     {
@@ -511,13 +511,11 @@ public class TransportLine {
                 Coordinate second_street_2 = this.getStreetsMap().get(1).getCoordinates().get(2);
 
                 if ((begin_street_1.getX() == second_street_1.getX() && begin_street_1.getY() == second_street_1.getY()) || (begin_street_1.getX() == second_street_2.getX() && begin_street_1.getY() == second_street_2.getY())) {
-                    System.out.println("Highlight part of first street from first stop");
                     line1 = new Line(begin_stop_x, begin_stop_y, begin_street_1.getX(), begin_street_1.getY());
                     line1.setStroke(this.getTransportLineColor());
                     line1.setStrokeWidth(5);
                     anchor_pane_map.getChildren().addAll(line1);
                 } else if ((begin_street_2.getX() == second_street_1.getX() && begin_street_2.getY() == second_street_1.getY()) || (begin_street_2.getX() == second_street_2.getX() && begin_street_2.getY() == second_street_2.getY())) {
-                    System.out.println("Highlight part of first street from first stop");
                     line1 = new Line(begin_stop_x, begin_stop_y, begin_street_2.getX(), begin_street_2.getY());
                     line1.setStroke(this.getTransportLineColor());
                     line1.setStrokeWidth(5);
@@ -535,13 +533,11 @@ public class TransportLine {
                 Coordinate nexttolast_street_2 = this.getStreetsMap().get(this.getStreetsMap().size() - 2).getCoordinates().get(2);
 
                 if ((end_street_1.getX() == nexttolast_street_1.getX() && end_street_1.getY() == nexttolast_street_1.getY()) || (end_street_1.getX() == nexttolast_street_2.getX() && end_street_1.getY() == nexttolast_street_2.getY())) {
-                    System.out.println("Highlight last street from stop1");
                     line1 = new Line(end_stop_x, end_stop_y, end_street_1.getX(), end_street_1.getY());
                     line1.setStroke(this.getTransportLineColor());
                     line1.setStrokeWidth(5);
                     anchor_pane_map.getChildren().addAll(line1);
                 } else if ((end_street_2.getX() == nexttolast_street_1.getX() && end_street_2.getY() == nexttolast_street_1.getY()) || (end_street_2.getX() == nexttolast_street_2.getX() && end_street_2.getY() == nexttolast_street_2.getY())) {
-                    System.out.println("Highlight last street from stop1");
                     line1 = new Line(end_stop_x, end_stop_y, end_street_2.getX(), end_street_2.getY());
                     line1.setStroke(this.getTransportLineColor());
                     line1.setStrokeWidth(5);
@@ -555,15 +551,15 @@ public class TransportLine {
 
     /**
      * Create animation of path for particular transportline
-     * @param anchor_pane_map
+     * @param anchor_pane_map - - AnchorPane object as GUI component on which items are drawn
      * @param duration - duration between neighbour coordinates - default 2 seconds
      * @param stop_duration - duration of waiting in stop - default 1 second
      * @param affected_points - array of points affected with slowing traffic
      * @param slow_duration - duration between neighbour coordinates in street affected with slow traffic
      * @param slow_stop_duration - duration of waiting in stop in street affected with slow traffic
-     * @param handler
-     * @param detour_delay
-     * @return
+     * @param handler - handler which is is important for showing info about clicked vehicle
+     * @param detour_delay - if we work with detour, special delay is set
+     * @return timeline - Timeline object of movement of vehicle of particular line
      */
     public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, EventHandler<MouseEvent> handler, boolean detour_delay)
     {
@@ -630,12 +626,8 @@ public class TransportLine {
         }
 
         timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
-        //timeline.setDelay(Duration.seconds(3));
-        //this.setLineMovement(timeline); // set movement of specified line
-        //timeline.play(); // play final animation
-
         anchor_pane_map.getChildren().add(vehicle);
-        //this.delay = 0;
+
         if (detour_delay == false)
         {
             this.setDelay(duration, slow_duration, affected_points.size());
@@ -645,11 +637,23 @@ public class TransportLine {
             this.delay = this.detour_streets.size() * duration - duration;
         }
 
-
         return timeline;
     }
 
-    // only animated part of trasnportline
+    /**
+     * Only animate part of vehicle TransportLine - necessary for affect changes from user (change traffic size, closed street and their detour)
+     * because we want to affect changes for already travelling vehicles
+     * @param duration - duration between neighbour coordinates - default 2 seconds
+     * @param stop_duration - duration of waiting in stop - default 1 second
+     * @param affected_points - array of points affected with slowing traffic
+     * @param slow_duration - duration between neighbour coordinates in street affected with slow traffic
+     * @param slow_stop_duration - duration of waiting in stop in street affected with slow traffic
+     * @param vehicle - vehicle as Circle object which is affected with changes on their current way
+     * @param line_coordinates_part - part of line_coordinates list which has to be affected with changes from user
+     * @param handler - - handler which is is important for showing info about clicked vehicle
+     * @param detour_delay - if we work with detour, special delay is set
+     * @return affected_timeline - Timeline object which is affected with changes for current travelling vehicles
+     */
     public Timeline createPartLineAnimation(int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, Circle vehicle, ArrayList<Coordinate> line_coordinates_part, EventHandler<MouseEvent> handler, boolean detour_delay)
     {
         Timeline affected_timeline = new Timeline();
@@ -705,10 +709,8 @@ public class TransportLine {
             delta_time = delta_time + duration;
         }
 
-        //timeline.setCycleCount(Timeline.INDEFINITE); // infinity number of repetitions
         this.setLineMovement(affected_timeline); // set movement of specified line
-        //timeline.play(); // play final animation
-        //this.delay = (slow_duration - duration)*(affected_points.size()-1);
+
         if (detour_delay == false)
         {
             this.setDelay(duration, slow_duration, affected_points.size());
@@ -774,7 +776,6 @@ public class TransportLine {
 
             lines_info.setText("Line number: " + this.getLineId() + "\n");
             lines_info.setText(lines_info.getText() + "Route: " + this.printRouteStops() + "\n");
-            lines_info.setText(lines_info.getText() + "Route debug: +" + this.printRoute() + "\n");
             lines_info.setText(lines_info.getText() + "Line delay: +" + this.getDelay() + "\n");
 
             // get actual coordinates of vehicle
