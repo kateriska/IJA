@@ -438,6 +438,25 @@ public class MainWindow extends Application {
                 t.setClosedStopIndex(closed_stop_index);
                 t.getStopsMap().remove(closed_stop_index);
 
+                /*
+
+                for (Street detour_street : streets_list) {
+                    for (Line detour_line : detour_lines) {
+                        if (detour_street.begin().getX() == detour_line.getStartX() && detour_street.begin().getY() == detour_line.getStartY() && detour_street.end().getX() == detour_line.getEndX() && detour_street.end().getY() == detour_line.getEndY()) {
+                            if (detour_lines.size() == 2)
+                            {
+                                if (detour_street.follows(t.getStreetsMap().get(closed_street_index)))
+                                {
+                                    closed_street_index--;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                 */
+
                 for (Street detour_street : streets_list)
                 {
                     for (Line detour_line : detour_lines)
