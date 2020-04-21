@@ -7,7 +7,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +20,6 @@ public class TransportLine {
     private String line_id;
     private List<Street> streets_map = new ArrayList<Street>();
     private List<Stop> stops_map = new ArrayList<Stop>();
-    private List<Street> original_streets_map = new ArrayList<Street>();
-    private List<Stop> original_stops_map = new ArrayList<Stop>();
     ArrayList<Circle> all_line_vehicles = new ArrayList<Circle>();
     Timeline timeline = new Timeline();
     Paint line_color = null;
@@ -33,23 +30,37 @@ public class TransportLine {
     int closed_stop_index = 0;
     Stop closed_stop = null;
 
+    /**
+     * Empty TransportLine constructor
+     */
     public TransportLine()
     {
 
     }
 
-    // set id of this line
+    /**
+     * Set id of this line
+     * @param line_id - id of line
+     */
     public void setLineId(String line_id)
     {
         this.line_id = line_id;
     }
 
+    /**
+     * Get line id
+     * @return line_id - id of line
+     */
     public String getLineId()
     {
         return line_id;
     }
 
-    // add stop to line - important to check whether two streets follows each other or not, street of stop is also added
+    /**
+     * Add stop to line - important to check whether two streets follows each other or not, street of stop is also added
+     * @param stop - Stop object
+     * @return true when street of stop follows, otherwise false
+     */
     public boolean addStop(Stop stop)
     {
         stops_map.add(stop);
@@ -57,7 +68,6 @@ public class TransportLine {
 
         if (streets_map.size() > 1)
         {
-            //System.out.println("More than one street in line");
             if (streets_map.get(0).follows(streets_map.get(1)) == false || streets_map.get(0).follows(streets_map.get(1)) == false)
             {
                 stops_map.remove(stop);
@@ -65,25 +75,34 @@ public class TransportLine {
                 return false;
             }
         }
-
         return true;
     }
 
-    // add Street without Stop to TransportLine
+    /**
+     * Add Street without Stop to TransportLine
+     * @param street - Street object
+     * @return - true
+     */
     public boolean addStreet(Street street)
     {
         streets_map.add(street);
         return true;
     }
 
-    // create TransportLine object
+    /**
+     * Create TransportLine object
+     * @return new_line - return new TransportLine object
+     */
     public static TransportLine defaultLine()
     {
         TransportLine new_line = new TransportLine();
         return new_line;
     }
 
-    // simulation of route of TransportLine - stop of street are in brackets, when the street is without any stop of line we set null
+    /**
+     * Simulation of route of TransportLine - stop of street are in brackets, when the street is without any stop of line we set null
+     * @return roads_map - List of SimpleImmutableEntry
+     */
     public java.util.List<java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>> getRoute()
     {
         List<java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>> roads_map = new ArrayList<java.util.AbstractMap.SimpleImmutableEntry<Street,Stop>>();
@@ -112,8 +131,12 @@ public class TransportLine {
 
     }
 
-    // prints the route of getRoute()
-    // for example: Street1:stop(Stop13);Street4:stop(Stop17);Street6:stop(Stop5);Street10:null;Street17:stop(Stop1);Street20:stop(Stop2);
+
+    /**
+     * Prints the route of getRoute()
+     * for example: Street1:stop(Stop13);Street4:stop(Stop17);Street6:stop(Stop5);Street10:null;Street17:stop(Stop1);Street20:stop(Stop2);
+     * @return res - String formatted as route
+     */
     public String printRoute()
     {
         String res = this.getRoute().stream()
@@ -126,6 +149,10 @@ public class TransportLine {
         return res;
     }
 
+    /**
+     * Print route with only their stops
+     * @return route_output - String formatted as path with TransportLine's stops
+     */
     public String printRouteStops()
     {
         String route_output = "-> ";
@@ -138,65 +165,109 @@ public class TransportLine {
     }
 
 
+    /**
+     * Get array with stops from route
+     * @return stops_map - List of all stops of route
+     */
     public List<Stop> getStopsMap()
     {
         return stops_map;
     }
 
+    /**
+     * Get array with streets from route
+     * @return streets_map - List of all streets of route
+     */
     public List<Street> getStreetsMap()
     {
         return streets_map;
     }
 
+    /**
+     * Set closed street for route
+     * @param s
+     */
     public void setClosedStreet(Street s)
     {
         closed_street = s;
     }
 
+    /**
+     * Get closed street from route
+     * @return
+     */
     public Street getClosedStreet()
     {
         return closed_street;
     }
 
+    /**
+     * Add streets for detour
+     * @param s
+     */
     public void addDetourStreet( Street s)
     {
         detour_streets.add(s);
     }
 
+    /**
+     * Return streets for detour
+     * @return
+     */
     public ArrayList<Street> getDetourStreets()
     {
         return detour_streets;
     }
 
+    /**
+     * Clear all detour streets
+     */
     public void clearDetourStreet()
     {
         detour_streets = null;
     }
 
+    /**
+     * Set index of closed street
+     * @param i
+     */
     public void setClosedStopIndex(int i)
     {
         closed_stop_index = i;
     }
 
+    /**
+     * Get index of closed street
+     * @return
+     */
     public int getClosedStopIndex()
     {
         return closed_stop_index;
     }
 
+    /**
+     * Set closed stop on closed street
+     * @param stop
+     */
     public void setClosedStop(Stop stop)
     {
         closed_stop = stop;
     }
 
+    /**
+     * Get closed stop on closed street
+     * @return
+     */
     public Stop getClosedStop()
     {
         return closed_stop;
     }
 
 
-    /*
-    @return arraylist of all coordinates of specified path, they are sorted in the way how vehicle is travelling through them,
-    the right order is important
+    /**
+     * Get arraylist of all coordinates of specified path, they are sorted in the way how vehicle is travelling through them, the right order is important
+     *
+     * @return
      */
     public ArrayList<Coordinate> transportLinePath()
     {
@@ -256,8 +327,6 @@ public class TransportLine {
                 line_coordinates.add(this_street2);
             }
 
-
-
         }
 
         line_coordinates.add(getStopsMap().get(getStopsMap().size()-1).getCoordinate());
@@ -265,8 +334,9 @@ public class TransportLine {
     }
 
 
-    /*
-    @return arraylist of IDs of Coordinates in the order which is specified path of bus, the correct order is important
+    /**
+     * Get arraylist of IDs of Coordinates in the order which is specified path of bus, the correct order is important
+     * @return
      */
     public ArrayList<String> transportLinePathIDs()
     {
@@ -325,25 +395,35 @@ public class TransportLine {
             {
                 line_coordinates_ids.add(s.getId());
             }
-
-
         }
 
         line_coordinates_ids.add(getStopsMap().get(getStopsMap().size()-1).getId());
         return line_coordinates_ids;
     }
 
+    /**
+     * Get vehicles of line
+     * @return
+     */
     public ArrayList<Circle> getLineVehicles()
     {
         return this.all_line_vehicles;
     }
 
+    /**
+     * Add vehicle to line
+     * @param c
+     */
     public void addLineVehicles(Circle c)
     {
         this.all_line_vehicles.add(c);
         return;
     }
 
+    /**
+     * Clear all line vehicles
+     * @param anchor_pane_map
+     */
     public void clearLineVehicles(AnchorPane anchor_pane_map)
     {
         for (Circle c : all_line_vehicles)
@@ -352,46 +432,69 @@ public class TransportLine {
         }
     }
 
-
-
-    // set the animation of line movement for TransportLine
+    /**
+     * Set the animation of line movement for TransportLine
+     * @param t
+     */
     public void setLineMovement(Timeline t)
     {
         timeline = t;
     }
 
+    /**
+     * Get the animation of line movement for TransportLine
+     * @return
+     */
     public Timeline getLineMovement()
     {
         return timeline;
     }
 
-    // set color of TransportLine - for their stops, vehicles and streets
+    /**
+     * Set color of TransportLine - for their stops, vehicles and streets
+     * @param p
+     */
     public void setTransportLineColor(Paint p)
     {
         line_color = p;
     }
 
+    /**
+     * Get color of TransportLine - for their stops, vehicles and streets
+     * @return
+     */
     public Paint getTransportLineColor()
     {
         return line_color;
     }
 
+    /**
+     * Set color for highlighting of TransportLine - for their stops, vehicles and streets
+     * @param p
+     */
     public void setTransportLineSelectedColor(Paint p)
     {
         selected_line_color = p;
     }
 
+    /**
+     * Get color for highlighting of TransportLine - for their stops, vehicles and streets
+     * @return
+     */
     public Paint getTransportLineSelectedColor()
     {
         return selected_line_color;
     }
 
-    /*
-        highlight the journey of lines with their own color -
-        it means highlight all street from beginning to end when the line is travel through all street
-        and highlight only part from stop to end coordinate of street for beginning and end street, because
-        the line is not travel through all street but only part of it
-    */
+    /**
+     * Highlight the journey of lines with their own color -
+     * it means highlight all street from beginning to end when the line is travel through all street
+     * and highlight only part from stop to end coordinate of street for beginning and end street, because
+     * the line is not travel through all street but only part of it
+     * @param anchor_pane_map
+     * @param streets_list
+     * @param all_streets_lines
+     */
     public void highlightTransportLine(AnchorPane anchor_pane_map, ArrayList<Street> streets_list, ArrayList<Line> all_streets_lines)
     {
         Line line1 = null;
@@ -450,12 +553,18 @@ public class TransportLine {
         }
     }
 
-    // create animation of path for particular transportline
-    // duration - duration between neighbour coordinates - default 2 seconds
-    // stop_duration - duration of waiting in stop - default 1 second
-    // affected_points - array of points affected with slowing traffic
-    // slow_duration - duration between neighbour coordinates in street affected with slow traffic
-    // slow_stop_duration - duration of waiting in stop in street affected with slow traffic
+    /**
+     * Create animation of path for particular transportline
+     * @param anchor_pane_map
+     * @param duration - duration between neighbour coordinates - default 2 seconds
+     * @param stop_duration - duration of waiting in stop - default 1 second
+     * @param affected_points - array of points affected with slowing traffic
+     * @param slow_duration - duration between neighbour coordinates in street affected with slow traffic
+     * @param slow_stop_duration - duration of waiting in stop in street affected with slow traffic
+     * @param handler
+     * @param detour_delay
+     * @return
+     */
     public Timeline createLineAnimation(AnchorPane anchor_pane_map, int duration, int stop_duration, ArrayList<Coordinate> affected_points, int slow_duration, int slow_stop_duration, EventHandler<MouseEvent> handler, boolean detour_delay)
     {
         // coordinates of path for vehicle on transportline
@@ -665,6 +774,7 @@ public class TransportLine {
 
             lines_info.setText("Line number: " + this.getLineId() + "\n");
             lines_info.setText(lines_info.getText() + "Route: " + this.printRouteStops() + "\n");
+            lines_info.setText(lines_info.getText() + "Route debug: +" + this.printRoute() + "\n");
             lines_info.setText(lines_info.getText() + "Line delay: +" + this.getDelay() + "\n");
 
             // get actual coordinates of vehicle

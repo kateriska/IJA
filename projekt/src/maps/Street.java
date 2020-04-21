@@ -6,6 +6,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
 
 public class Street {
     private String street_id;
@@ -210,6 +211,10 @@ public class Street {
             all_streets_lines.add(line1);
             anchor_pane_map.getChildren().addAll(line1);
         }
+
+        //Text text = new Text(this.begin().getX() + 10, this.begin().getY() - 7, this.getId());
+        //text.setStroke(color);
+        //anchor_pane_map.getChildren().addAll(text);
     }
 
 }
