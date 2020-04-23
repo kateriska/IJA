@@ -6,7 +6,6 @@ import maps.Stop;
 import maps.TransportLine;
 // Import java classes
 import javafx.scene.image.Image;
-import java.awt.geom.Point2D;
 import java.io.*;
 import javafx.scene.layout.*;
 import javafx.application.Application;
@@ -20,17 +19,13 @@ import java.util.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.util.Duration;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import java.awt.MouseInfo;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
 
@@ -122,21 +117,7 @@ public class MainWindow extends Application {
 
         // beginning of coordinates [0,0] is in left upon corner of whole window and also it is beginning for image
 
-        /*
-        Point2D p = MouseInfo.getPointerInfo().getLocation();
-
-        root.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                // show specific coordinates after mouse clicking in console - useful for positioning of streets and stops
-                System.out.println(event.getSceneX());
-                System.out.println(event.getSceneY());
-            }
-        });
-
-         */
-
-        ArrayList<Street> streets_list = setMapStreets(); // Street objects created from file
+        ArrayList<Street> streets_list = setMapStreets("C:/Users/forto/IdeaProjects/proj/lib/streetsCoordinates.txt"); // Street objects created from file
 
         /*
         highlight all street objects in map - for right angle streets need to create two lines instead one for this type of streets
@@ -147,7 +128,7 @@ public class MainWindow extends Application {
             s.highlightStreet(anchor_pane_map,all_streets_lines, Color.LIGHTGREY);
         }
 
-        ArrayList<Stop> stops_list = setMapStops(streets_list); // objects of all Stop are created from file
+        ArrayList<Stop> stops_list = setMapStops(streets_list, "C:/Users/forto/IdeaProjects/proj/lib/stopsCoordinates.txt"); // objects of all Stop are created from file
 
         for (Stop stop : stops_list) //  highlight all stop objects in map
         {
@@ -441,25 +422,6 @@ public class MainWindow extends Application {
                 t.setClosedStopIndex(closed_stop_index);
                 t.getStopsMap().remove(closed_stop_index);
 
-                /*
-
-                for (Street detour_street : streets_list) {
-                    for (Line detour_line : detour_lines) {
-                        if (detour_street.begin().getX() == detour_line.getStartX() && detour_street.begin().getY() == detour_line.getStartY() && detour_street.end().getX() == detour_line.getEndX() && detour_street.end().getY() == detour_line.getEndY()) {
-                            if (detour_lines.size() == 2)
-                            {
-                                if (detour_street.follows(t.getStreetsMap().get(closed_street_index)))
-                                {
-                                    closed_street_index--;
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                 */
-
                 for (Street detour_street : streets_list)
                 {
                     for (Line detour_line : detour_lines)
@@ -521,13 +483,15 @@ public class MainWindow extends Application {
         stage.show(); // show GUI scene
     }
 
-    /*
-    method for loading streets IDs and their coordinates from file, and create objects of all Streets in map
-    @return list of all Street objects
+    /**
+     * Method for loading streets IDs and their coordinates from file, and create objects of all Streets in map
+     * @param filename_path - path to file with all stops description
+     * @return streets_list - list of all Street objects
+     * @throws Exception
      */
-    public ArrayList<Street> setMapStreets() throws Exception
+    public ArrayList<Street> setMapStreets(String filename_path) throws Exception
     {
-        BufferedReader br = new BufferedReader(new FileReader("C:/Users/forto/IdeaProjects/proj/lib/streetsCoordinates.txt"));
+        BufferedReader br = new BufferedReader(new FileReader(filename_path));
         String line = null;
         ArrayList<Street> streets_list = new ArrayList<Street>();
 
@@ -585,14 +549,16 @@ public class MainWindow extends Application {
         return streets_list;
     }
 
-    /*
-    method for loading stops IDs and their coordinates from file, and create objects of all Stops in map
-    @arguments list of all streets in map
-    @return list of all Stop objects
+    /**
+     * Method for loading stops IDs and their coordinates from file, and create objects of all Stops in map
+     * @param streetArrayList - list of all streets in map
+     * @param filename_path - path to file with all stops description
+     * @return stops_list - list of all Stop objects
+     * @throws Exception
      */
-    public ArrayList<Stop> setMapStops(ArrayList<Street> streetArrayList) throws Exception
+    public ArrayList<Stop> setMapStops(ArrayList<Street> streetArrayList, String filename_path) throws Exception
     {
-        BufferedReader br = new BufferedReader(new FileReader("C:/Users/forto/IdeaProjects/proj/lib/stopsCoordinates.txt"));
+        BufferedReader br = new BufferedReader(new FileReader(filename_path));
         String line = null;
         ArrayList<Stop> stops_list = new ArrayList<Stop>();
 
@@ -613,15 +579,13 @@ public class MainWindow extends Application {
             {
                 if (s.getId().equals(street_of_stop_id))
                 {
-                    if (s.getCoordinates().get(1) == null)
+                    if (s.getCoordinates().get(1) == null) // normal street
                     {
-                        System.out.println("Normal street");
                         s.addStop(stop, false);
                         stops_list.add(stop);
                     }
-                    else
+                    else // right angle street
                     {
-                        System.out.println("Right angle street");
                         s.addStop(stop, true);
                         stops_list.add(stop);
                     }
@@ -634,11 +598,13 @@ public class MainWindow extends Application {
         return stops_list;
     }
 
-    /*
-    method for loading line ID and their stops and streets without stops from file, and create objects TransportLine (aka Line in hw2)
-    @arguments list of all stops in map
-    @arguments list of all Street objects
-    @return TransportLine object
+    /**
+     * Method for loading line ID and their stops and streets without stops from file, and create objects TransportLine (aka Line in hw2)
+     * @param streetArrayList - list of all Street objects
+     * @param stopArrayList - list of all stops in map
+     * @param filename_path - path to file with line description
+     * @return transport_line - new TransportLine object
+     * @throws Exception
      */
     public TransportLine setScheduleLines(ArrayList<Street> streetArrayList, ArrayList<Stop> stopArrayList, String filename_path) throws Exception
     {
@@ -647,10 +613,8 @@ public class MainWindow extends Application {
 
         line = br.readLine();
         String line_id = line.substring(line.indexOf("-")+1).trim();
-        System.out.println(line_id);
         TransportLine transport_line = TransportLine.defaultLine();
         transport_line.setLineId(line_id);
-        System.out.println(transport_line.getLineId());
 
         while ((line = br.readLine()) != null) {
             if (line.contains("Stop"))
