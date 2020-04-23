@@ -86,8 +86,6 @@ public class MainWindow extends Application {
         Button closed_streets_button = new Button("Close street");
         Label detour_label = new Label("Mark detour for closed street");
         Button detour_streets_button = new Button("Save detour");
-        //Label reopen_streets_label = new Label("Delete detour and re-open particular closed street");
-        //Button reopen_streets_button = new Button("Re-open closed street");
 
         anchor_pane_menu.getChildren().addAll(header_label, restart_timer, traffic_label, traffic_choose, box_traffic, traffic_button, closed_detour_label, closed_streets_label, closed_streets_button, detour_label, detour_streets_button);
 
