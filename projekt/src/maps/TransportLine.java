@@ -724,6 +724,13 @@ public class TransportLine {
         return affected_timeline;
     }
 
+    /**
+     * Set delay for specified line
+     * @param duration - duration between neighbour coordinates - default 2 seconds
+     * @param slow_duration - duration between neighbour coordinates in street affected with slow traffic
+     * @param affected_points_size - size of affected points list with traffic
+     * @return
+     */
     public int setDelay(int duration, int slow_duration, int affected_points_size)
     {
         if (slow_duration != 0)
@@ -738,12 +745,20 @@ public class TransportLine {
         return this.delay;
     }
 
-
+    /**
+     * Get delay of specified line
+     * @return delay - value of delay for specified line
+     */
     public int getDelay()
     {
         return this.delay;
     }
 
+    /**
+     * Get list of coordinates of line which is affected by slowing traffic
+     * @param actual_c - actual position of vehicle
+     * @return line_coordinates_part - part of upcoming coordinates of vehicle when path is affected with traffic
+     */
     public ArrayList<Coordinate> affectTravellingPath(Coordinate actual_c)
     {
         ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
@@ -765,6 +780,11 @@ public class TransportLine {
         return line_coordinates_part;
     }
 
+    /**
+     * Print info about clicked vehicle
+     * @param c - Circle object which represents vehicle of line
+     * @param lines_info - GUI component where info is printed
+     */
     public void printInfoVehicleClick(Circle c, Text lines_info)
     {
         if (this.getLineVehicles().contains(c)) {
@@ -806,6 +826,11 @@ public class TransportLine {
         }
     }
 
+    /**
+     * Get affected points with traffic
+     * @param affected_lines - List of Line objects which are affected
+     * @return - new_affected_points - Points of line which are affected with traffic
+     */
     public ArrayList<Coordinate> getAffectedPointsTraffic(ArrayList<Line> affected_lines)
     {
         ArrayList<Coordinate> new_affected_points = new ArrayList<Coordinate>();
@@ -828,6 +853,9 @@ public class TransportLine {
         return new_affected_points;
     }
 
+    /**
+     * Reopen closed street of line with their Stops and clear all streets for detour
+     */
     public void reopenClosedStreet()
     {
         int detour_index = 0;
