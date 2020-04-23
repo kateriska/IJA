@@ -3,10 +3,8 @@ package maps;
 import java.util.*;
 
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.Text;
 
 public class Street {
     private String street_id;
@@ -16,6 +14,13 @@ public class Street {
     private List<Coordinate> all_coordinates_list = new ArrayList<Coordinate>();
     private List<Stop> all_stops_list = new ArrayList<Stop>();
 
+    /**
+     * Constructor for creating Street object for right angle Streets with 3 init points
+     * @param street_id - id of Street
+     * @param coordinate1 - Begin coordinate for Street object
+     * @param coordinate2 - Middle coordinate for right angle street
+     * @param coordinate_end - End coordinate of Street object
+     */
     public Street(String street_id, Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate_end)
     {
         this.street_id = street_id;
@@ -24,6 +29,12 @@ public class Street {
         this.coordinate_end = coordinate_end;
     }
 
+    /**
+     * Constructor for creating Street object for normal Streets with 2 init points
+     * @param street_id - id of Street
+     * @param coordinate1 - Begin coordinate for Street object
+     * @param coordinate_end - End coordinate of Street object
+     */
     public Street(String street_id, Coordinate coordinate1, Coordinate coordinate_end)
     {
         this.street_id = street_id;
