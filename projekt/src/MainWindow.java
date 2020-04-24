@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import javafx.scene.shape.Line;
 import javafx.scene.input.*;
 import javafx.event.*;
+
+import java.nio.file.Paths;
 import java.util.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.layout.BorderPane;
@@ -28,6 +30,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class MainWindow extends Application {
 
@@ -108,14 +112,15 @@ public class MainWindow extends Application {
 
         Scene scene = new Scene(root, 1050, 700); // set width and height of window
 
-        File file = new File("C:/Users/forto/IdeaProjects/proj/lib/new_map.png");
+        File file = new File("../lib/new_map.png");
         BackgroundImage myBI = new BackgroundImage(new Image(file.toURI().toString()),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
         anchor_pane_map.setBackground(new Background(myBI)); // set map as background for anchor_pane_map
 
         // beginning of coordinates [0,0] is in left upon corner of whole window and also it is beginning for image
 
-        ArrayList<Street> streets_list = setMapStreets("C:/Users/forto/IdeaProjects/proj/lib/streetsCoordinates.txt"); // Street objects created from file
+
+        ArrayList<Street> streets_list = setMapStreets(Paths.get("lib/streetsCoordinates.txt").toAbsolutePath()); // Street objects created from file
 
         /*
         highlight all street objects in map - for right angle streets need to create two lines instead one for this type of streets
@@ -126,7 +131,7 @@ public class MainWindow extends Application {
             s.highlightStreet(anchor_pane_map,all_streets_lines, Color.LIGHTGREY);
         }
 
-        ArrayList<Stop> stops_list = setMapStops(streets_list, "C:/Users/forto/IdeaProjects/proj/lib/stopsCoordinates.txt"); // objects of all Stop are created from file
+        ArrayList<Stop> stops_list = setMapStops(streets_list, Paths.get("lib/stopsCoordinates.txt").toAbsolutePath()); // objects of all Stop are created from file
 
         for (Stop stop : stops_list) //  highlight all stop objects in map
         {
@@ -134,10 +139,10 @@ public class MainWindow extends Application {
         }
 
         // create ScheduleLine objects from files
-        TransportLine transportLine = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule.txt");
-        TransportLine transportLine2 = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule2.txt");
-        TransportLine transportLine3 = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule3.txt");
-        TransportLine transportLine4 = setScheduleLines(streets_list, stops_list, "C:/Users/forto/IdeaProjects/proj/lib/transportSchedule4.txt");
+        TransportLine transportLine = setScheduleLines(streets_list, stops_list, Paths.get("lib/transportSchedule.txt").toAbsolutePath());
+        TransportLine transportLine2 = setScheduleLines(streets_list, stops_list, Paths.get("lib/transportSchedule2.txt").toAbsolutePath());
+        TransportLine transportLine3 = setScheduleLines(streets_list, stops_list, Paths.get("lib/transportSchedule3.txt").toAbsolutePath());
+        TransportLine transportLine4 = setScheduleLines(streets_list, stops_list, Paths.get("lib/transportSchedule4.txt").toAbsolutePath());
 
         // each transport line is marked with different color and different color for their highlighting
         transportLine.setTransportLineColor(Color.SKYBLUE);
@@ -487,9 +492,9 @@ public class MainWindow extends Application {
      * @return streets_list - list of all Street objects
      * @throws Exception
      */
-    public ArrayList<Street> setMapStreets(String filename_path) throws Exception
+    public ArrayList<Street> setMapStreets(Path filename_path) throws Exception
     {
-        BufferedReader br = new BufferedReader(new FileReader(filename_path));
+        BufferedReader br = new BufferedReader(new FileReader(filename_path.toString()));
         String line = null;
         ArrayList<Street> streets_list = new ArrayList<Street>();
 
@@ -554,9 +559,9 @@ public class MainWindow extends Application {
      * @return stops_list - list of all Stop objects
      * @throws Exception
      */
-    public ArrayList<Stop> setMapStops(ArrayList<Street> streetArrayList, String filename_path) throws Exception
+    public ArrayList<Stop> setMapStops(ArrayList<Street> streetArrayList, Path filename_path) throws Exception
     {
-        BufferedReader br = new BufferedReader(new FileReader(filename_path));
+        BufferedReader br = new BufferedReader(new FileReader(filename_path.toString()));
         String line = null;
         ArrayList<Stop> stops_list = new ArrayList<Stop>();
 
@@ -604,9 +609,9 @@ public class MainWindow extends Application {
      * @return transport_line - new TransportLine object
      * @throws Exception
      */
-    public TransportLine setScheduleLines(ArrayList<Street> streetArrayList, ArrayList<Stop> stopArrayList, String filename_path) throws Exception
+    public TransportLine setScheduleLines(ArrayList<Street> streetArrayList, ArrayList<Stop> stopArrayList, Path filename_path) throws Exception
     {
-        BufferedReader br = new BufferedReader(new FileReader(filename_path));
+        BufferedReader br = new BufferedReader(new FileReader(filename_path.toString()));
         String line = null;
 
         line = br.readLine();
