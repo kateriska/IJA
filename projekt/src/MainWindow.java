@@ -112,7 +112,7 @@ public class MainWindow extends Application {
 
         Scene scene = new Scene(root, 1050, 700); // set width and height of window
 
-        File file = new File("../lib/new_map.png");
+        File file = new File(Paths.get("lib/new_map.png").toAbsolutePath().toString());
         BackgroundImage myBI = new BackgroundImage(new Image(file.toURI().toString()),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
         anchor_pane_map.setBackground(new Background(myBI)); // set map as background for anchor_pane_map
