@@ -762,6 +762,7 @@ public class TransportLine {
     public ArrayList<Coordinate> affectTravellingPath(Coordinate actual_c)
     {
         ArrayList<Coordinate> line_coordinates_part = new ArrayList<Coordinate>();
+        line_coordinates_part.add(actual_c);
 
         for (int i = 0; i < this.transportLinePath().size() - 1; i++) {
             Coordinate coordinates1 = this.transportLinePath().get(i);
