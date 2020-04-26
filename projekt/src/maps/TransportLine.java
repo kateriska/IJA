@@ -20,15 +20,15 @@ public class TransportLine {
     private String line_id;
     private List<Street> streets_map = new ArrayList<Street>();
     private List<Stop> stops_map = new ArrayList<Stop>();
-    ArrayList<Circle> all_line_vehicles = new ArrayList<Circle>();
-    Timeline timeline = new Timeline();
-    Paint line_color = null;
-    Paint selected_line_color = null;
-    int delay = 0;
-    Street closed_street = null;
-    ArrayList<Street> detour_streets = new ArrayList<Street>();
-    int closed_stop_index = 0;
-    Stop closed_stop = null;
+    private ArrayList<Circle> all_line_vehicles = new ArrayList<Circle>();
+    private Timeline timeline = new Timeline();
+    private Paint line_color = null;
+    private Paint selected_line_color = null;
+    private int delay = 0;
+    private Street closed_street = null;
+    private ArrayList<Street> detour_streets = new ArrayList<Street>();
+    private int closed_stop_index = 0;
+    private Stop closed_stop = null;
 
     /**
      * Empty TransportLine constructor
