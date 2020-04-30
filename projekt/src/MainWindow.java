@@ -1,3 +1,9 @@
+/**
+ * @author Katerina Fortova
+ * @author Michal Machac
+ * @since 2020-03-24
+ */
+
 // Import classes
 import javafx.geometry.Pos;
 import maps.Coordinate;
