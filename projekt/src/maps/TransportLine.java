@@ -1,3 +1,9 @@
+/**
+ * @author Katerina Fortova
+ * @author Michal Machac
+ * @since 2020-03-26
+ */
+
 package maps;
 
 import javafx.animation.KeyFrame;
